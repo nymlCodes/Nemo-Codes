@@ -143,7 +143,7 @@ export default function Hero() {
                   className="font-mono text-[10px] text-white/90 uppercase tracking-widest"
                   style={{ fontFamily: "'Space Mono', monospace" }}
                 >
-                  {/* 🇧🇩 BD */} BD
+                  🇧🇩 BD
                 </span>
                 <span
                   className="font-mono text-[9px] text-white/50 tracking-wider"
