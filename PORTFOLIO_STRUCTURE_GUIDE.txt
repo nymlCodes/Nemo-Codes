@@ -1,0 +1,220 @@
+================================================================================
+                    NEYAMUL ISLAM - PORTFOLIO ARCHITECTURE GUIDE
+================================================================================
+
+This document provides a comprehensive, file-by-file guide to Neyamul Islam's
+creative developer portfolio. It details the actual implemented architecture,
+backend database/API synchronization, environment configuration, route structure,
+two-tier project showcase and details system, global NEMO typography watermark,
+subtle atmospheric wind engine, and responsive layout behavior.
+
+================================================================================
+1. TECH STACK & CORE DEPENDENCIES
+================================================================================
+- Framework: Next.js 14.2.3 (App Router architecture)
+- Language: TypeScript 5.4.5 (Strict type checking)
+- UI & Motion: React 18, Motion (framer-motion v12)
+- Styling: Tailwind CSS 3.4.1 + Custom Hardware-Accelerated CSS
+- Typography Stack:
+  * Syne (Google Font) — Monumental, agency-grade display headlines
+  * Outfit (Google Font) — Clean geometric architectural headings
+  * Space Grotesk (Google Font) — Contemporary editorial body text
+  * Space Mono (Google Font) — Technical monospaced metadata and overlines
+- Icons: Lucide React & React Icons (react-icons/si, react-icons/fa, react-icons/fi)
+- Deployment Target: Vercel / Node.js Hosting
+
+================================================================================
+2. COMPLETE DIRECTORY TREE
+================================================================================
+
+Portfolio/
+├── .env                              # Backend API environment variable (NEXT_PUBLIC_SERVER_URL)
+├── .gitignore                        # Git exclusion rules
+├── next-env.d.ts                     # Next.js ambient TypeScript declarations
+├── next.config.js                    # Next.js core configuration
+├── package.json                      # Project dependencies & scripts
+├── postcss.config.js                 # PostCSS configuration for Tailwind
+├── projectJsonFormat.txt             # Reference data schema for projects
+├── PORTFOLIO_STRUCTURE_GUIDE.txt     # This comprehensive architecture guide
+├── public/                           # Static assets served directly
+│   ├── favicon.png                   # Browser tab favicon
+│   ├── logo.png                      # Portfolio brand logo
+│   ├── neyamul.png                   # High-res profile portrait for About section
+│   └── profile.png                   # Architectural profile image for Hero
+├── src/
+│   ├── app/                          # Next.js App Router (Pages & Routing)
+│   │   ├── globals.css               # Editorial design system, typography tokens, scrollbars
+│   │   ├── layout.tsx                # Root layout with Google font preconnects & metadata
+│   │   ├── loading.tsx               # Minimalist monochromatic loader fallback
+│   │   ├── page.tsx                  # Home Route ("/") -> renders Hero layer
+│   │   ├── about/
+│   │   │   └── page.tsx              # About Route ("/about") -> renders About layer
+│   │   ├── contact/
+│   │   │   └── page.tsx              # Contact Route ("/contact") -> renders Contact layer
+│   │   ├── education/
+│   │   │   └── page.tsx              # Education Route ("/education") -> renders Education layer
+│   │   ├── projects/
+│   │   │   ├── page.tsx              # Projects Route ("/projects") -> renders Projects showcase
+│   │   │   └── [id]/
+│   │   │       └── page.tsx          # Dynamic Project Details Route ("/projects/:id")
+│   │   ├── skills/
+│   │   │   └── page.tsx              # Skills Route ("/skills") -> renders Skills layer
+│   │   └── details/
+│   │       └── [id]/
+│   │           └── page.tsx          # Dynamic Project Details Route ("/details/:id")
+│   ├── components/                   # Reusable UI & Layout Components
+│   │   ├── AnimatedBackground.tsx    # Atmospheric wind engine (flowing streaks + air motes)
+│   │   ├── NemoBackground.tsx        # Global floating NEMO typographic watermark (all routes)
+│   │   ├── Cursor.tsx                # Minimalist monochrome magnetic cursor
+│   │   ├── HomeClient.tsx            # Client wrapper managing Splash, Intro, & Layers
+│   │   ├── PortfolioIntro.tsx        # Timed onboarding intro animation sequence
+│   │   ├── ProjectCard.tsx           # Reusable project card component
+│   │   ├── ProjectDetailsClient.tsx  # Dynamic case study details view with full specs & retrospective
+│   │   ├── ProjectsClient.tsx        # Dynamic 4-scene editorial showcase gallery (no gray tint)
+│   │   ├── SplashScreen.tsx          # Minimalist initial splash reveal
+│   │   └── layers/                   # Page Section Content Layers
+│   │       ├── About.tsx             # Editorial biography, portrait, core specs, stack
+│   │       ├── Contact.tsx           # Coordinates, location card, and transmission form
+│   │       ├── Education.tsx         # Chronology, bootcamp credentials, verified certificates
+│   │       ├── Hero.tsx              # Monumental opening statement & quick facts
+│   │       ├── Projects.tsx          # Server Component fetching data from backend API
+│   │       ├── RouteSwitch.tsx       # Restored classic desktop left drawer & mobile bottom dock
+│   │       └── Skills.tsx            # Responsive kinetic marquee & categorized stack (SiReact fixed)
+│   ├── lib/                          # Data fetching and server utilities
+│   │   ├── getProjectById.ts         # Dynamically fetch project by ID or slug from backend API
+│   │   └── projects.ts               # Dynamically fetch all projects from backend API
+│   └── types/                        # TypeScript Interface & Type Definitions
+│       └── index.ts                  # Strict type definitions for projects, skills, education
+├── tailwind.config.js                # Tailwind CSS color tokens, keyframes, utilities
+└── tsconfig.json                     # TypeScript compiler configuration
+
+================================================================================
+3. DATA LAYER & BACKEND API INTEGRATION
+================================================================================
+The portfolio uses the backend database/server as its exclusive source of truth:
+- Environment Variable: `NEXT_PUBLIC_SERVER_URL` in `.env` (e.g. `http://localhost:5000/`)
+- Fetching All Projects (`src/lib/projects.ts`):
+  * Reads `process.env.NEXT_PUBLIC_SERVER_URL`
+  * Queries `${baseUrl}/projects` with `{ cache: 'no-store' }`
+  * The live API response is directly returned and rendered.
+  * `fallbackProjects.ts` has been completely deleted from the codebase.
+  * If the backend server fails or is unreachable, the UI renders a genuine server error state rather than masking failure with hardcoded data.
+- Fetching Single Project Details (`src/lib/getProjectById.ts`):
+  * Queries `${baseUrl}/projects/:id` directly for 24-character hex ObjectIds.
+  * If a human-readable slug is supplied (e.g., 'petnest'), it looks up the item dynamically from the live `${baseUrl}/projects` API list.
+  * Returns the full project object dynamically from MongoDB to the details view.
+
+================================================================================
+4. TWO-TIER PROJECT ARCHITECTURE (SHOWCASE VS. DETAILS)
+================================================================================
+The portfolio separates projects into two distinct, focused user experiences:
+
+A. PROJECTS SHOWCASE GALLERY (`/projects` -> `ProjectsClient.tsx`)
+- Purpose: A curated visual gallery highlighting key works.
+- Information shown:
+  * Crisp, sharp project preview image (original colors & contrast, zero grayscale filter)
+  * Project title
+  * Concise description excerpt
+  * Minimal technology badges (top 3-4 technologies)
+  * Prominent "View Details" call to action linking to `/details/[id]` or `/projects/[id]`
+- Preserves the 4 bespoke editorial showcase scenes:
+  * Scene 01: Asymmetric Monumental Stage (with architectural corner crosshairs)
+  * Scene 02: Panoramic Full-Bleed Viewport Canvas with floating HUD strip
+  * Scene 03: Split-Schematic Canvas with side-by-side technical narrative
+  * Scene 04: Monolith Magazine Canvas with typographic background motif
+  * Scene 05+: Alternate creative scenes for any remaining projects
+- Dynamically maps projects from the backend without hardcoded title lookups.
+
+B. PROJECT DETAILS PAGE (`/details/[id]` and `/projects/[id]`)
+- Purpose: Complete, in-depth architectural breakdown of an individual project.
+- Information rendered dynamically from backend data:
+  * Full project title, category, and status badge
+  * Complete in-depth description
+  * Full-resolution, crisp hero preview image
+  * Timeline duration and team structure metadata
+  * Complete framework and technology stack badges
+  * Engineering highlights & features checklist
+  * Technical challenges & architectural resolutions (Problem Diagnosis & Solution)
+  * Retrospective lessons learned
+  * Planned roadmap & future enhancements
+  * External launch links (Live Application, Client Repository, Server Repository)
+
+================================================================================
+5. GLOBAL NEMO TYPOGRAPHIC WATERMARK
+================================================================================
+- Implementation: `src/components/NemoBackground.tsx`
+- Rendered globally via `HomeClient.tsx` so it appears on ALL routes:
+  Home (`/`), About (`/about`), Skills (`/skills`), Education (`/education`),
+  Projects (`/projects`), Project Details (`/details/:id`, `/projects/:id`),
+  and Contact (`/contact`).
+- Visual Characteristics:
+  * Large, bold typography: "NEMO" in Syne/Outfit ultra-bold (font-weight: 900)
+  * Size: `clamp(6rem, 22vw, 27rem)` with responsive scaling
+  * Opacity: calibrated to ~0.14 - 0.18, clearly visible and recognizable while remaining behind foreground content
+  * Pure white / off-white with subtle glow text-shadow
+  * Subtle animation: ultra-slow 22-second floating breathing cycle (vertical translation + gentle scale), subtle opacity pulse, and mouse parallax
+  * Strict overflow containment (`overflow-hidden`, `max-w-full`) preventing horizontal scrollbars across all screen widths.
+
+================================================================================
+6. BACKGROUND ATMOSPHERE — SUBTLE WIND ENGINE
+================================================================================
+- Implementation: `src/components/AnimatedBackground.tsx`
+- Replaced old upward particles with an organic, subtle wind breeze effect:
+  * HTML5 Canvas running at 60fps with low CPU/GPU footprint
+  * Draws 30-36 delicate flowing wind streaks moving from left to right with gentle sine-wave waves
+  * Soft opacity (0.03 to 0.08) with linear gradient fades at line ends
+  * Tiny drifting air motes floating smoothly along the wind vector
+  * Provides air, motion, and depth without competing with content or typography
+  * Visual hierarchy:
+    1. Content (`z-10`)
+    2. NEMO Watermark (`z-0`)
+    3. Subtle Wind Atmosphere (`-z-20`)
+    4. Base Dark Charcoal Vignette (`-z-30`)
+  * Respects `prefers-reduced-motion` and automatically pauses when the tab is hidden.
+
+================================================================================
+7. ROUTE HEADINGS & VISUAL REFINEMENT
+================================================================================
+- Secondary page headings have been scaled down from giant 8xl fonts to balanced,
+  refined editorial headings (`text-3xl sm:text-4xl lg:text-5xl font-black`):
+  * Hero (`Hero.tsx`): Retains monumental, dramatic opening typographic statement
+  * About (`About.tsx`): Balanced heading giving visual dominance to the profile portrait, narrative text, and core stack
+  * Skills (`Skills.tsx`): Refined header with responsive kinetic typography and categorized roster
+  * Education (`Education.tsx`): Structured timeline hierarchy with verified document links
+  * Contact (`Contact.tsx`): Refined creative developer CTA and transmission terminal
+  * Project Details (`ProjectDetailsClient.tsx`): Refined case study title and specs banner
+
+================================================================================
+8. TECHNOLOGY ICONS & SKILLS RESPONSIVENESS
+================================================================================
+- React.js Icon Correction:
+  * Fixed React.js in `Skills.tsx` to use `SiReact` instead of `SiNextdotjs`.
+  * Verified all other technology representations (Next.js, TypeScript, JavaScript, Node.js, Express, MongoDB, Tailwind CSS, HTML5, CSS3, Git, VS Code, Figma, Vite, Vercel, PostgreSQL, Prisma).
+- Responsiveness:
+  * Kinetic typography marquee wrapped in strict `overflow-hidden` containers to prevent viewport clipping.
+  * Skill item names and roles adapt gracefully with fluid sizing (`text-lg sm:text-2xl lg:text-3xl`) and flex wrapping on 360px, 390px, 480px, 768px, 1024px, 1280px, and 1440px+ viewports.
+
+================================================================================
+9. RESTORED CLASSIC NAVIGATION STYLE
+================================================================================
+- Implementation: `src/components/layers/RouteSwitch.tsx`
+- Desktop Experience (≥ 768px):
+  * Fixed left drawer dock with edge tab handle (ChevronRight and vertical indicator)
+  * Slides out smoothly on hover or click
+  * Header with Compass icon, "Navigation" label, and close button
+  * Previous / Up route navigation button
+  * All 6 routes (Home, About, Skills, Education, Projects, Contact) with icons, labels, and active highlight
+  * Next / Down route navigation button
+- Mobile Experience (< 768px):
+  * Fixed bottom floating pill bar (`fixed bottom-5 left-1/2 -translate-x-1/2`)
+  * Frosted glass backdrop blur with 6 route icons and compact labels underneath
+  * Active state with pill highlight and top glowing accent
+
+================================================================================
+10. TESTING & VERIFICATION SUMMARY
+================================================================================
+- TypeScript compilation: `npx tsc --noEmit` passed with 0 errors.
+- HTTP Route Status: All endpoints (`/`, `/about`, `/skills`, `/education`, `/projects`, `/contact`, `/details/:id`, `/projects/:id`) respond with HTTP 200 OK.
+- Image quality: All project previews display in full original contrast and color with zero grayscale filters.
+- Background hierarchy: Content -> NEMO -> Wind Atmosphere verified without horizontal overflow on mobile or desktop viewports.
+================================================================================
