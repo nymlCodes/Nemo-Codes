@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react'
  *
  * Responsive orientation:
  * - Desktop (≥ 768px): NEMO horizontal — centered large typographic watermark
- * - Mobile / Tablet (< 768px): N E M O stacked vertically on the right edge
+ * - Mobile / Tablet (< 768px): N E M O stacked vertically, centered
  *
  * Zero horizontal overflow guaranteed via overflow:hidden + contain:strict.
  * CSS media queries drive the switch — no JS screen detection needed.
@@ -88,7 +88,7 @@ export default function NemoBackground() {
         }}
       >
         {/* Inner handles the float animation */}
-        <div className="nemo-vertical-wrapper flex flex-col items-center gap-[2vh] select-none">
+        <div className="nemo-vertical-wrapper flex flex-col items-center gap-[9vh] select-none">
           {(['N', 'E', 'M', 'O'] as const).map((letter) => (
             <span
               key={letter}
@@ -96,7 +96,7 @@ export default function NemoBackground() {
               style={{
                 fontFamily: "'Syne', 'Outfit', sans-serif",
                 fontSize: 'clamp(3rem, 18vw, 7rem)',
-                textShadow: '0 0 60px rgba(255,255,255,0.05)',
+                textShadow: '0 0 60px rgba(255,255,255,0.08)',
               }}
             >
               {letter}
@@ -117,15 +117,15 @@ export default function NemoBackground() {
           animation: nemoPulse 16s ease-in-out infinite alternate;
         }
 
-        /* ── Mobile vertical: gentle float keeping translateY(-50%) base ── */
+        /* ── Mobile vertical: gentle float + stronger opacity pulse ── */
         .nemo-vertical-wrapper {
           animation: nemoVertFloat 24s ease-in-out infinite alternate;
           will-change: transform;
         }
 
         .nemo-v-letter {
-          opacity: 0.058;
-          animation: nemoPulse 16s ease-in-out infinite alternate;
+          opacity: 0.11;
+          animation: nemoPulseMobile 16s ease-in-out infinite alternate;
         }
 
         @keyframes nemoFloat {
@@ -140,10 +140,18 @@ export default function NemoBackground() {
           100% { transform: translateY(-5px); }
         }
 
+        /* Desktop pulse */
         @keyframes nemoPulse {
           0%   { opacity: 0.048; }
           50%  { opacity: 0.068; }
           100% { opacity: 0.048; }
+        }
+
+        /* Mobile pulse (brighter) */
+        @keyframes nemoPulseMobile {
+          0%   { opacity: 0.09; }
+          50%  { opacity: 0.13; }
+          100% { opacity: 0.09; }
         }
 
         @media (prefers-reduced-motion: reduce) {
