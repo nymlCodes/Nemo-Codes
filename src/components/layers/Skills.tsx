@@ -1,9 +1,27 @@
 'use client'
 
 import React, { useState } from 'react'
+import { motion, type Variants } from 'motion/react'
 import { VscVscode } from 'react-icons/vsc'
 import { SiGithub, SiFigma, SiNpm, SiVite, SiReactrouter, SiVercel, SiNextdotjs, SiReact, SiExpress, SiNodedotjs, SiMongodb, SiTypescript, SiTailwindcss, SiJavascript, SiHtml5, SiCss, SiPostgresql, SiPrisma } from 'react-icons/si'
 import { MdOutlineDeveloperMode } from 'react-icons/md'
+
+const vp = { once: true, margin: '-60px' }
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } },
+}
+
+const staggerList: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.055, delayChildren: 0.05 } },
+}
+
+const rowItem: Variants = {
+  hidden: { opacity: 0, x: -16 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+}
 
 export default function Skills() {
   const [activeCategory, setActiveCategory] = useState<'all' | 'frontend' | 'backend' | 'tools' | 'learning'>('all')
@@ -63,19 +81,25 @@ export default function Skills() {
   return (
     <section
       id="skills"
-      className="relative w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-16 sm:py-24 space-y-16 sm:space-y-24 overflow-hidden"
+      className="relative w-full max-w-7xl mx-auto px-4 xs:px-6 sm:px-10 lg:px-16 py-16 sm:py-24 space-y-16 sm:space-y-24 overflow-hidden"
     >
       {/* Editorial Header — Refined & Balanced */}
-      <div className="space-y-4 border-b border-white/[0.08] pb-10">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+      <motion.div
+        className="space-y-4 border-b border-white/[0.08] pb-8 sm:pb-10"
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={vp}
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
           <p
-            className="text-xs tracking-[0.25em] uppercase text-[#82828e]"
+            className="text-[11px] sm:text-xs tracking-[0.2em] sm:tracking-[0.25em] uppercase text-[#82828e]"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
-            INDEX // 03 — CAPABILITIES & STACK
+            INDEX // 03 — CAPABILITIES &amp; STACK
           </p>
           <p
-            className="text-xs tracking-[0.2em] uppercase text-white/50"
+            className="text-[11px] sm:text-xs tracking-[0.15em] sm:tracking-[0.2em] uppercase text-white/50"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
             ENGINEERED TOOLS
@@ -83,7 +107,7 @@ export default function Skills() {
         </div>
 
         <h1
-          className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight uppercase"
+          className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight uppercase"
           style={{ fontFamily: "'Syne', 'Outfit', sans-serif" }}
         >
           TECHNICAL <span className="text-[#8a8a96]">REPERTOIRE.</span>
@@ -96,13 +120,19 @@ export default function Skills() {
           An intentional arsenal of modern web technologies, runtime frameworks,
           and architectural tools deployed across high-scale applications.
         </p>
-      </div>
+      </motion.div>
 
       {/* Kinetic Typography Marquee Strips */}
-      <div className="space-y-4 overflow-hidden border-y border-white/[0.08] py-8 select-none pointer-events-none">
+      <motion.div
+        className="space-y-3 sm:space-y-4 overflow-hidden border-y border-white/[0.08] py-6 sm:py-8 select-none pointer-events-none"
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={vp}
+      >
         {/* Row 1 */}
         <div className="flex whitespace-nowrap overflow-hidden">
-          <div className="marquee-row-1 flex items-center gap-10 text-3xl sm:text-5xl font-black text-white/20 uppercase tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+          <div className="marquee-row-1 flex items-center gap-6 sm:gap-10 text-2xl sm:text-4xl lg:text-5xl font-black text-white/20 uppercase tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
             <span>NEXT.JS</span>
             <span className="text-white/10">•</span>
             <span>TYPESCRIPT</span>
@@ -130,8 +160,8 @@ export default function Skills() {
 
         {/* Row 2 */}
         <div className="flex whitespace-nowrap overflow-hidden">
-          <div className="marquee-row-2 flex items-center gap-10 text-3xl sm:text-5xl font-black text-white/10 uppercase tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
-            <span>GIT & GITHUB</span>
+          <div className="marquee-row-2 flex items-center gap-6 sm:gap-10 text-2xl sm:text-4xl lg:text-5xl font-black text-white/10 uppercase tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+            <span>GIT &amp; GITHUB</span>
             <span className="text-white/5">•</span>
             <span>POSTGRESQL</span>
             <span className="text-white/5">•</span>
@@ -143,7 +173,7 @@ export default function Skills() {
             <span className="text-white/5">•</span>
             <span>CHROME DEVTOOLS</span>
             <span className="text-white/5">•</span>
-            <span>GIT & GITHUB</span>
+            <span>GIT &amp; GITHUB</span>
             <span className="text-white/5">•</span>
             <span>POSTGRESQL</span>
             <span className="text-white/5">•</span>
@@ -151,95 +181,78 @@ export default function Skills() {
             <span className="text-white/5">•</span>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Category Filter Chips */}
-      <div className="flex flex-wrap items-center gap-2 pt-2">
-        <button
-          onClick={() => setActiveCategory('all')}
-          className={`px-4 py-2 rounded-full text-xs font-mono uppercase tracking-wider transition-all duration-300 ${
-            activeCategory === 'all'
-              ? 'bg-white text-black font-bold'
-              : 'bg-white/[0.04] text-white/70 hover:text-white border border-white/10'
-          }`}
-        >
-          ALL CAPABILITIES
-        </button>
-        <button
-          onClick={() => setActiveCategory('frontend')}
-          className={`px-4 py-2 rounded-full text-xs font-mono uppercase tracking-wider transition-all duration-300 ${
-            activeCategory === 'frontend'
-              ? 'bg-white text-black font-bold'
-              : 'bg-white/[0.04] text-white/70 hover:text-white border border-white/10'
-          }`}
-        >
-          FRONTEND
-        </button>
-        <button
-          onClick={() => setActiveCategory('backend')}
-          className={`px-4 py-2 rounded-full text-xs font-mono uppercase tracking-wider transition-all duration-300 ${
-            activeCategory === 'backend'
-              ? 'bg-white text-black font-bold'
-              : 'bg-white/[0.04] text-white/70 hover:text-white border border-white/10'
-          }`}
-        >
-          BACKEND
-        </button>
-        <button
-          onClick={() => setActiveCategory('tools')}
-          className={`px-4 py-2 rounded-full text-xs font-mono uppercase tracking-wider transition-all duration-300 ${
-            activeCategory === 'tools'
-              ? 'bg-white text-black font-bold'
-              : 'bg-white/[0.04] text-white/70 hover:text-white border border-white/10'
-          }`}
-        >
-          TOOLING
-        </button>
-        <button
-          onClick={() => setActiveCategory('learning')}
-          className={`px-4 py-2 rounded-full text-xs font-mono uppercase tracking-wider transition-all duration-300 ${
-            activeCategory === 'learning'
-              ? 'bg-white text-black font-bold'
-              : 'bg-white/[0.04] text-white/70 hover:text-white border border-white/10'
-          }`}
-        >
-          RESEARCH & EXPANSION
-        </button>
+      <div className="flex flex-wrap items-center gap-2">
+        {([
+          { id: 'all', label: 'ALL CAPABILITIES' },
+          { id: 'frontend', label: 'FRONTEND' },
+          { id: 'backend', label: 'BACKEND' },
+          { id: 'tools', label: 'TOOLING' },
+          { id: 'learning', label: 'RESEARCH' },
+        ] as const).map(({ id, label }) => (
+          <button
+            key={id}
+            onClick={() => setActiveCategory(id)}
+            className={`px-3 sm:px-4 py-2 rounded-full text-[11px] sm:text-xs font-mono uppercase tracking-wider transition-all duration-300 min-h-[44px] ${
+              activeCategory === id
+                ? 'bg-white text-black font-bold'
+                : 'bg-white/[0.04] text-white/70 hover:text-white border border-white/10 hover:border-white/25'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {/* Editorial Grouped Typographic Roster */}
-      <div className="space-y-16">
+      <div className="space-y-12 sm:space-y-16">
         {filteredCategories.map((group, gIdx) => (
-          <div key={group.category} className="space-y-6">
-            <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
+          <motion.div
+            key={group.category}
+            className="space-y-5 sm:space-y-6"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={vp}
+          >
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3 sm:pb-4">
               <span
-                className="text-xs font-mono uppercase tracking-[0.25em] text-[#82828e]"
+                className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.2em] sm:tracking-[0.25em] text-[#82828e]"
                 style={{ fontFamily: "'Space Mono', monospace" }}
               >
                 0{gIdx + 1} // {group.category}
               </span>
               <span
-                className="text-xs font-mono text-white/40"
+                className="text-[11px] sm:text-xs font-mono text-white/40"
                 style={{ fontFamily: "'Space Mono', monospace" }}
               >
-                [{group.items.length} TECHNOLOGIES]
+                [{group.items.length} TECH]
               </span>
             </div>
 
-            <div className="divide-y divide-white/[0.06]">
+            <motion.div
+              className="divide-y divide-white/[0.06]"
+              variants={staggerList}
+              initial="hidden"
+              whileInView="visible"
+              viewport={vp}
+            >
               {group.items.map((item) => {
                 const Icon = item.icon
                 return (
-                  <div
+                  <motion.div
                     key={item.name}
-                    className="group py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 hover:pl-2 sm:hover:pl-3 transition-all duration-300"
+                    variants={rowItem}
+                    className="group py-3.5 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-4 hover:pl-2 sm:hover:pl-3 transition-all duration-300"
                   >
                     <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                      <div className="w-8 h-8 shrink-0 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center text-white/80 group-hover:text-white group-hover:border-white/30 transition-all">
-                        <Icon className="text-base" />
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 shrink-0 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center text-white/80 group-hover:text-white group-hover:border-white/30 transition-all duration-300">
+                        <Icon className="text-sm sm:text-base" />
                       </div>
                       <span
-                        className="text-lg sm:text-2xl lg:text-3xl font-extrabold text-white group-hover:text-white transition-colors truncate"
+                        className="text-base sm:text-xl lg:text-2xl xl:text-3xl font-extrabold text-white group-hover:text-white transition-colors truncate"
                         style={{ fontFamily: "'Outfit', sans-serif" }}
                       >
                         {item.name}
@@ -247,16 +260,16 @@ export default function Skills() {
                     </div>
 
                     <span
-                      className="text-xs sm:text-sm font-mono text-[#82828e] group-hover:text-white/80 transition-colors uppercase tracking-wider sm:text-right shrink-0"
+                      className="text-[11px] sm:text-xs font-mono text-[#82828e] group-hover:text-white/80 transition-colors uppercase tracking-wider sm:text-right shrink-0 ml-10 sm:ml-0"
                       style={{ fontFamily: "'Space Mono', monospace" }}
                     >
                       {item.role}
                     </span>
-                  </div>
+                  </motion.div>
                 )
               })}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         ))}
       </div>
 
@@ -276,6 +289,11 @@ export default function Skills() {
         .marquee-row-2 {
           display: flex;
           animation: marqueeScroll2 35s linear infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .marquee-row-1, .marquee-row-2 {
+            animation: none;
+          }
         }
       `}</style>
     </section>

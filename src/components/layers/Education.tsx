@@ -1,10 +1,28 @@
 'use client'
 
 import React from 'react'
+import { motion, type Variants } from 'motion/react'
 import { GraduationCap, Award, ShieldCheck, ExternalLink, ArrowRight } from 'lucide-react'
 import { FaLaptopCode } from 'react-icons/fa'
 import { SiNextdotjs, SiExpress, SiNodedotjs, SiTailwindcss, SiJavascript, SiReact } from 'react-icons/si'
 import { EducationItem, CourseData, CertificateItem, GoalItemData } from '../../types'
+
+const vp = { once: true, margin: '-60px' }
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } },
+}
+
+const staggerCards: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+}
+
+const cardItem: Variants = {
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+}
 
 const educationData: EducationItem[] = [
   {
@@ -75,30 +93,36 @@ export default function Education() {
   return (
     <section
       id="education"
-      className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-16 sm:py-24 space-y-16 sm:space-y-24"
+      className="relative z-10 w-full max-w-7xl mx-auto px-4 xs:px-6 sm:px-10 lg:px-16 py-16 sm:py-24 space-y-14 sm:space-y-20"
     >
       {/* Editorial Header — Refined & Balanced */}
-      <div className="space-y-4 border-b border-white/[0.08] pb-10">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+      <motion.div
+        className="space-y-4 border-b border-white/[0.08] pb-8 sm:pb-10"
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={vp}
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
           <p
-            className="text-xs tracking-[0.25em] uppercase text-[#82828e]"
+            className="text-[11px] sm:text-xs tracking-[0.2em] sm:tracking-[0.25em] uppercase text-[#82828e]"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
-            INDEX // 04 — PEDAGOGY & CREDENTIALS
+            INDEX // 04 — PEDAGOGY &amp; CREDENTIALS
           </p>
           <p
-            className="text-xs tracking-[0.2em] uppercase text-white/50"
+            className="text-[11px] sm:text-xs tracking-[0.15em] sm:tracking-[0.2em] uppercase text-white/50"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
-            ACADEMIC RIGOR & CERTIFICATIONS
+            ACADEMIC RIGOR &amp; CERTIFICATIONS
           </p>
         </div>
 
         <h1
-          className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight uppercase"
+          className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight uppercase"
           style={{ fontFamily: "'Syne', 'Outfit', sans-serif" }}
         >
-          EDUCATION & <span className="text-[#8a8a96]">CREDENTIALS.</span>
+          EDUCATION &amp; <span className="text-[#8a8a96]">CREDENTIALS.</span>
         </h1>
 
         <p
@@ -108,34 +132,41 @@ export default function Education() {
           A dual foundation of rigorous business administration analysis and
           high-intensity full-stack web software engineering.
         </p>
-      </div>
+      </motion.div>
 
       {/* Part 1: Academic Milestones Chronology */}
-      <div className="space-y-6">
+      <motion.div
+        className="space-y-5 sm:space-y-6"
+        variants={staggerCards}
+        initial="hidden"
+        whileInView="visible"
+        viewport={vp}
+      >
         <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
           <span
-            className="text-xs font-mono uppercase tracking-[0.25em] text-[#82828e]"
+            className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.2em] sm:tracking-[0.25em] text-[#82828e]"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
             01 // ACADEMIC FOUNDATIONS
           </span>
           <span
-            className="text-xs font-mono text-white/40"
+            className="text-[11px] sm:text-xs font-mono text-white/40"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
             [GOVT. INSTITUTIONS]
           </span>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {educationData.map((item, idx) => (
-            <div
+            <motion.div
               key={item.degree}
-              className="p-6 sm:p-8 rounded-2xl border border-white/10 bg-[#09090d]/95 backdrop-blur-md shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-center hover:border-white/25 transition-all duration-300"
+              variants={cardItem}
+              className="p-5 sm:p-6 lg:p-8 rounded-2xl border border-white/10 bg-[#09090d]/95 backdrop-blur-md shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start hover:border-white/25 transition-all duration-300"
             >
               {/* Year & Index */}
-              <div className="lg:col-span-3 space-y-1 font-mono">
-                <span className="text-xs text-[#82828e]">MILESTONE 0{idx + 1}</span>
+              <div className="lg:col-span-3 space-y-1.5 font-mono">
+                <span className="text-[11px] sm:text-xs text-[#82828e]">MILESTONE 0{idx + 1}</span>
                 <p className="text-sm font-bold text-white tracking-wider">{item.year}</p>
                 {item.ongoing && (
                   <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] uppercase bg-white/10 text-white font-mono">
@@ -146,18 +177,18 @@ export default function Education() {
               </div>
 
               {/* Degree & Institution */}
-              <div className="lg:col-span-6 space-y-2">
+              <div className="lg:col-span-6 space-y-1.5 sm:space-y-2">
                 <h3
-                  className="text-xl sm:text-2xl font-extrabold text-white tracking-tight uppercase"
+                  className="text-lg sm:text-xl font-extrabold text-white tracking-tight uppercase leading-snug"
                   style={{ fontFamily: "'Outfit', sans-serif" }}
                 >
                   {item.degree}
                 </h3>
-                <p className="text-sm text-white/70 font-mono" style={{ fontFamily: "'Space Mono', monospace" }}>
+                <p className="text-xs sm:text-sm text-white/70 font-mono" style={{ fontFamily: "'Space Mono', monospace" }}>
                   {item.institution}
                 </p>
                 <p
-                  className="text-sm text-[#a0a0ae] font-light leading-relaxed pt-1"
+                  className="text-xs sm:text-sm text-[#a0a0ae] font-light leading-relaxed"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   {item.description}
@@ -166,46 +197,52 @@ export default function Education() {
 
               {/* Grade */}
               <div className="lg:col-span-3 flex lg:justify-end">
-                <span className="px-3.5 py-1.5 rounded-full text-xs font-mono uppercase bg-white/[0.05] border border-white/15 text-white">
+                <span className="px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-mono uppercase bg-white/[0.05] border border-white/15 text-white">
                   {item.grade}
                 </span>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Part 2: Intensive Engineering Course */}
-      <div className="space-y-8 pt-6">
+      <motion.div
+        className="space-y-6 sm:space-y-8"
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={vp}
+      >
         <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
           <span
-            className="text-xs font-mono uppercase tracking-[0.25em] text-[#82828e]"
+            className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.2em] sm:tracking-[0.25em] text-[#82828e]"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
             02 // PROFESSIONAL BOOTCAMP
           </span>
           <span
-            className="text-xs font-mono text-white/40"
+            className="text-[11px] sm:text-xs font-mono text-white/40"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
             [{courseData.batch}]
           </span>
         </div>
 
-        <div className="p-8 sm:p-12 rounded-2xl border border-white/10 bg-[#09090d] space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="p-6 sm:p-8 lg:p-12 rounded-2xl border border-white/10 bg-[#09090d] space-y-5 sm:space-y-6">
+          <div className="flex flex-wrap items-start sm:items-center justify-between gap-4">
             <div>
-              <span className="text-xs font-mono uppercase tracking-[0.2em] text-[#82828e]">
+              <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.2em] text-[#82828e]">
                 {courseData.platform} • {courseData.year}
               </span>
               <h3
-                className="text-3xl sm:text-4xl font-extrabold text-white uppercase tracking-tight mt-1"
+                className="text-2xl xs:text-3xl sm:text-4xl font-extrabold text-white uppercase tracking-tight mt-1"
                 style={{ fontFamily: "'Syne', sans-serif" }}
               >
                 {courseData.name}
               </h3>
             </div>
-            <span className="px-4 py-1.5 rounded-full text-xs font-mono uppercase bg-white text-black font-bold">
+            <span className="px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-mono uppercase bg-white text-black font-bold">
               {courseData.batch} COMPLETED
             </span>
           </div>
@@ -218,44 +255,51 @@ export default function Education() {
             server-side rendering, asynchronous REST APIs, secure token auth, and MongoDB schema architecture.
           </p>
 
-          <div className="flex flex-wrap gap-2 pt-2">
+          <div className="flex flex-wrap gap-2 pt-1">
             {courseData.skills?.map((s) => (
               <span
                 key={s.name}
-                className="px-3 py-1 rounded text-xs font-mono text-white bg-white/[0.04] border border-white/10"
+                className="px-2.5 sm:px-3 py-1 rounded text-[11px] sm:text-xs font-mono text-white bg-white/[0.04] border border-white/10"
               >
                 {s.name}
               </span>
             ))}
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Part 3: Verified Certificates */}
-      <div className="space-y-8 pt-6">
+      <motion.div
+        className="space-y-6 sm:space-y-8"
+        variants={staggerCards}
+        initial="hidden"
+        whileInView="visible"
+        viewport={vp}
+      >
         <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
           <span
-            className="text-xs font-mono uppercase tracking-[0.25em] text-[#82828e]"
+            className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.2em] sm:tracking-[0.25em] text-[#82828e]"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
             03 // VERIFIED CREDENTIALS
           </span>
           <span
-            className="text-xs font-mono text-white/40"
+            className="text-[11px] sm:text-xs font-mono text-white/40"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
             [GOOGLE DRIVE VERIFIED]
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {certificatesData.map((cert) => (
-            <div
+            <motion.div
               key={cert.title}
-              className="p-6 sm:p-8 rounded-2xl border border-white/10 bg-[#0c0c10] space-y-5 flex flex-col justify-between hover:border-white/25 transition-all duration-300"
+              variants={cardItem}
+              className="p-5 sm:p-6 lg:p-8 rounded-2xl border border-white/10 bg-[#0c0c10] space-y-4 sm:space-y-5 flex flex-col justify-between hover:border-white/25 transition-all duration-300"
             >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs font-mono text-[#82828e]">
+              <div className="space-y-2 sm:space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-[#82828e]">
                   <span>{cert.issuer}</span>
                   <span className="px-2.5 py-0.5 rounded text-[10px] uppercase bg-white/10 text-white font-mono">
                     {cert.type}
@@ -263,7 +307,7 @@ export default function Education() {
                 </div>
 
                 <h4
-                  className="text-xl sm:text-2xl font-bold text-white uppercase tracking-tight"
+                  className="text-lg sm:text-xl font-bold text-white uppercase tracking-tight"
                   style={{ fontFamily: "'Outfit', sans-serif" }}
                 >
                   {cert.title}
@@ -277,51 +321,57 @@ export default function Education() {
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-white/[0.08]">
+              <div className="pt-3 sm:pt-4 border-t border-white/[0.08]">
                 <a
                   href={cert.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white hover:underline"
+                  className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-mono uppercase tracking-wider text-white hover:underline min-h-[44px]"
                 >
                   <span>Verify Credential Document</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Part 4: Active Technical Goals */}
-      <div className="space-y-6 pt-6 border-t border-white/[0.08]">
+      <motion.div
+        className="space-y-5 sm:space-y-6 border-t border-white/[0.08] pt-6 sm:pt-8"
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={vp}
+      >
         <div className="flex items-center justify-between">
           <span
-            className="text-xs font-mono uppercase tracking-[0.25em] text-[#82828e]"
+            className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.2em] sm:tracking-[0.25em] text-[#82828e]"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
             04 // ACTIVE CURRICULUM ROADMAP
           </span>
           <span
-            className="text-xs font-mono text-white/40"
+            className="text-[11px] sm:text-xs font-mono text-white/40"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
             [IN-PROGRESS]
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
           {goals.map((g) => (
             <div
               key={g.label}
-              className="p-4 rounded-xl border border-white/10 bg-[#09090d] flex items-center justify-between text-sm font-mono text-white"
+              className="p-3.5 sm:p-4 rounded-xl border border-white/10 bg-[#09090d] flex items-center justify-between text-xs sm:text-sm font-mono text-white hover:border-white/25 transition-all duration-300"
             >
               <span>{g.label}</span>
               <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
             </div>
           ))}
         </div>
-      </div>
+      </motion.div>
     </section>
   )
 }

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'motion/react'
+import { motion, type Variants } from 'motion/react'
 import { FiArrowUpRight, FiDownload, FiArrowRight } from 'react-icons/fi'
 import { FaGithub, FaLinkedin } from 'react-icons/fa'
 
@@ -14,19 +14,49 @@ const roles = [
   'UI/UX & Frontend Lover',
 ]
 
-// Simple transition helper — avoids repeating boilerplate
-const transition = (delay: number, duration = 0.65) => ({
-  duration,
-  delay,
-  ease: 'easeOut' as const,
-})
+// Staggered motion variants for orchestrated editorial reveal
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.12,
+    },
+  },
+}
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 22 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.7,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+}
+
+const imageVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.94, y: 20 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: {
+      duration: 0.85,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+}
 
 export default function Hero() {
   const [roleIndex, setRoleIndex] = useState(0)
   const [displayText, setDisplayText] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
 
-  // Fluid, jitter-free typewriter engine — unchanged
+  // Fluid, jitter-free typewriter engine — preserved
   useEffect(() => {
     let timer: NodeJS.Timeout
     const currentFullText = roles[roleIndex]
@@ -56,21 +86,25 @@ export default function Hero() {
   }, [displayText, isDeleting, roleIndex])
 
   return (
-    <section
+    <motion.section
       id="home"
-      className="relative min-h-[92vh] flex flex-col justify-between pt-24 pb-16 px-6 sm:px-10 lg:px-16 max-w-7xl mx-auto overflow-hidden"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="relative min-h-[92vh] flex flex-col justify-between pt-20 sm:pt-24 pb-14 sm:pb-16 px-4 xs:px-6 sm:px-10 lg:px-16 max-w-7xl mx-auto overflow-hidden"
     >
       {/* Top Editorial Sub-bar */}
       <motion.div
-        className="flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.08] pb-6 mb-12 sm:mb-16"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={transition(0.1, 0.7)}
+        variants={itemVariants}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-white/[0.08] pb-5 sm:pb-6 mb-8 sm:mb-14"
       >
-        <div className="flex items-center gap-3">
-          <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <span className="relative flex h-2 w-2 shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-70" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+          </span>
           <span
-            className="text-xs uppercase tracking-[0.25em] text-white/90 font-bold"
+            className="text-[10px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.25em] text-white/90 font-bold"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
             AVAILABLE FOR GLOBAL ROLES &amp; WORK // 2026
@@ -78,7 +112,7 @@ export default function Hero() {
         </div>
 
         <div
-          className="text-xs uppercase tracking-[0.2em] text-[#82828e]"
+          className="text-[10px] sm:text-xs uppercase tracking-[0.12em] sm:tracking-[0.2em] text-[#82828e]"
           style={{ fontFamily: "'Space Mono', monospace" }}
         >
           DHAKA, BANGLADESH // 23.8103° N, 90.4125° E
@@ -86,53 +120,51 @@ export default function Hero() {
       </motion.div>
 
       {/* Main Asymmetric Hero Stage */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-end my-auto">
-        {/* Left Column: Oversized Monumental Typography */}
-        <div className="lg:col-span-8 space-y-8">
-          <div className="space-y-2">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-8 items-end my-auto">
+        {/* Left Column: Monumental Typography & Narrative */}
+        <div className="lg:col-span-8 space-y-6 sm:space-y-8">
+          <div className="space-y-2 sm:space-y-3">
             <motion.p
-              className="text-xs sm:text-sm tracking-[0.3em] uppercase text-[#82828e] font-medium"
+              variants={itemVariants}
+              className="text-[11px] sm:text-xs md:text-sm tracking-[0.2em] sm:tracking-[0.3em] uppercase text-[#82828e] font-medium"
               style={{ fontFamily: "'Space Mono', monospace" }}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={transition(0.18)}
             >
               [ ARTISANAL FULL-STACK ENGINEERING ]
             </motion.p>
 
             <motion.h1
-              className="text-5xl sm:text-7xl md:text-8xl xl:text-9xl font-extrabold text-white leading-[0.88] tracking-[-0.04em] uppercase"
+              variants={itemVariants}
+              className="text-[2.6rem] xs:text-5xl sm:text-7xl md:text-8xl xl:text-9xl font-extrabold text-white leading-[0.92] sm:leading-[0.88] tracking-[-0.04em] uppercase select-none"
               style={{ fontFamily: "'Syne', 'Outfit', sans-serif" }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={transition(0.28)}
             >
-              NEYAMUL
+              <span className="inline-block transition-transform duration-500 hover:translate-x-1">
+                NEYAMUL
+              </span>
               <br />
-              <span className="text-[#a8a8b4]">ISLAM</span>
+              <span className="text-[#a8a8b4] inline-block transition-all duration-500 hover:text-white hover:translate-x-1">
+                ISLAM
+              </span>
             </motion.h1>
           </div>
 
           {/* ── MOBILE ONLY: Profile photo between name & typewriter ── */}
-          {/* On desktop this image is in the right column below */}
           <motion.div
-            className="lg:hidden flex justify-end"
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={transition(0.38)}
+            variants={imageVariants}
+            className="lg:hidden flex justify-center sm:justify-end py-2"
           >
-            <div className="relative group w-[260px] sm:w-[300px] aspect-[4/5] rounded-2xl overflow-hidden border border-white/15 bg-[#0a0a0e] shadow-2xl">
-              <div className="pointer-events-none absolute top-3 left-3 w-3 h-3 border-t border-l border-white/40 z-20" />
-              <div className="pointer-events-none absolute top-3 right-3 w-3 h-3 border-t border-r border-white/40 z-20" />
-              <div className="pointer-events-none absolute bottom-3 left-3 w-3 h-3 border-b border-l border-white/40 z-20" />
-              <div className="pointer-events-none absolute bottom-3 right-3 w-3 h-3 border-b border-r border-white/40 z-20" />
+            <div className="hero-portrait-frame relative group w-[220px] xs:w-[250px] sm:w-[290px] aspect-[4/5] rounded-2xl overflow-hidden border border-white/15 bg-[#0a0a0e] shadow-2xl transition-all duration-500 hover:border-white/35">
+              {/* Corner crosshairs */}
+              <div className="pointer-events-none absolute top-3 left-3 w-3 h-3 border-t border-l border-white/40 z-20 transition-all duration-300 group-hover:border-white" />
+              <div className="pointer-events-none absolute top-3 right-3 w-3 h-3 border-t border-r border-white/40 z-20 transition-all duration-300 group-hover:border-white" />
+              <div className="pointer-events-none absolute bottom-3 left-3 w-3 h-3 border-b border-l border-white/40 z-20 transition-all duration-300 group-hover:border-white" />
+              <div className="pointer-events-none absolute bottom-3 right-3 w-3 h-3 border-b border-r border-white/40 z-20 transition-all duration-300 group-hover:border-white" />
 
               <Image
                 src="/profile.png"
                 alt="Neyamul Islam"
                 fill
                 priority
-                sizes="(max-width: 640px) 260px, 300px"
+                sizes="(max-width: 640px) 250px, 290px"
                 className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
               />
 
@@ -140,13 +172,13 @@ export default function Hero() {
 
               <div className="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between text-xs">
                 <span
-                  className="font-mono text-[10px] text-white/90 uppercase tracking-widest"
+                  className="font-mono text-[10px] text-white/90 uppercase tracking-widest px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm border border-white/10"
                   style={{ fontFamily: "'Space Mono', monospace" }}
                 >
                   🇧🇩 BD
                 </span>
                 <span
-                  className="font-mono text-[9px] text-white/50 tracking-wider"
+                  className="font-mono text-[9px] text-white/60 tracking-wider px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm border border-white/10"
                   style={{ fontFamily: "'Space Mono', monospace" }}
                 >
                   EST. 2024
@@ -157,63 +189,63 @@ export default function Hero() {
 
           {/* Layout-Stable Typewriter Role Pill */}
           <motion.div
-            className="flex flex-wrap sm:flex-nowrap items-center gap-3 pt-2"
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={transition(0.44)}
+            variants={itemVariants}
+            className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-1"
           >
             <span
-              className="text-xs font-mono uppercase tracking-[0.15em] text-[#82828e] shrink-0"
+              className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.14em] text-[#82828e] shrink-0"
               style={{ fontFamily: "'Space Mono', monospace" }}
             >
               SPECIALIZING IN:
             </span>
             {/* Ghost sizer locks container width — typewriter never shifts layout */}
-            <div className="relative inline-flex items-center px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/10 shrink-0">
+            <div className="relative inline-flex items-center px-3 sm:px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/10 transition-colors duration-300 hover:border-white/25">
               <span
-                className="invisible select-none pointer-events-none opacity-0 whitespace-nowrap text-sm sm:text-base font-medium"
+                className="invisible select-none pointer-events-none opacity-0 whitespace-nowrap text-xs sm:text-sm md:text-base font-medium"
                 aria-hidden="true"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 React &amp; Next.js Specialist
               </span>
-              <div className="absolute inset-0 flex items-center px-4">
+              <div className="absolute inset-0 flex items-center px-3 sm:px-4">
                 <span
-                  className="text-sm sm:text-base text-white font-medium whitespace-nowrap"
+                  className="text-xs sm:text-sm md:text-base text-white font-medium whitespace-nowrap tracking-wide"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   {displayText}
                 </span>
-                <span className="w-1.5 h-4 ml-1.5 bg-white animate-pulse shrink-0" aria-hidden="true" />
+                <span className="w-1.5 h-3.5 sm:h-4 ml-1.5 bg-white animate-pulse shrink-0" aria-hidden="true" />
               </div>
             </div>
           </motion.div>
 
           {/* Statement Bio */}
           <motion.p
-            className="text-base sm:text-lg md:text-xl text-[#b5b5c2] leading-relaxed max-w-2xl font-light"
+            variants={itemVariants}
+            className="text-sm sm:text-base md:text-lg lg:text-xl text-[#b5b5c2] leading-relaxed max-w-2xl font-light"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={transition(0.54)}
           >
             A passionate developer from Bangladesh, building beautiful and functional
             web experiences. Fan of clean code, rigorous architecture, and great design.
           </motion.p>
 
-          {/* Action CTAs */}
+          {/* Action CTAs with Refined Micro-interactions */}
           <motion.div
-            className="flex flex-wrap items-center gap-4 pt-4"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={transition(0.64)}
+            variants={itemVariants}
+            className="flex flex-wrap items-center gap-3 sm:gap-4 pt-3 sm:pt-4"
           >
-            <Link href="/projects" className="btn-editorial-primary">
+            <Link
+              href="/projects"
+              className="btn-editorial-primary group w-full xs:w-auto justify-center"
+            >
               <span>View Case Studies</span>
-              <FiArrowRight className="text-sm" />
+              <FiArrowRight className="text-sm transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
 
-            <Link href="/contact" className="btn-editorial-ghost">
+            <Link
+              href="/contact"
+              className="btn-editorial-ghost w-full xs:w-auto justify-center"
+            >
               <span>Get In Touch</span>
             </Link>
 
@@ -221,9 +253,9 @@ export default function Hero() {
               href="https://drive.google.com/file/d/1qbVFIHhEWMtQ-m-UawTH8NwfVrJbNJoq/view?usp=drive_link"
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-editorial-ghost"
+              className="btn-editorial-ghost w-full xs:w-auto justify-center group"
             >
-              <FiDownload className="text-sm" />
+              <FiDownload className="text-sm transition-transform duration-300 group-hover:translate-y-0.5" />
               <span>Resume</span>
             </a>
           </motion.div>
@@ -231,23 +263,21 @@ export default function Hero() {
 
         {/* Right Column: Architectural Portrait Frame — desktop only */}
         <motion.div
-          className="lg:col-span-4 hidden lg:flex flex-col items-start lg:items-end justify-end"
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={transition(0.36)}
+          variants={imageVariants}
+          className="lg:col-span-4 hidden lg:flex flex-col items-end justify-end"
         >
-          <div className="relative group w-full max-w-[320px] aspect-[4/5] rounded-2xl overflow-hidden border border-white/15 bg-[#0a0a0e] shadow-2xl">
-            <div className="pointer-events-none absolute top-3 left-3 w-3 h-3 border-t border-l border-white/40 z-20" />
-            <div className="pointer-events-none absolute top-3 right-3 w-3 h-3 border-t border-r border-white/40 z-20" />
-            <div className="pointer-events-none absolute bottom-3 left-3 w-3 h-3 border-b border-l border-white/40 z-20" />
-            <div className="pointer-events-none absolute bottom-3 right-3 w-3 h-3 border-b border-r border-white/40 z-20" />
+          <div className="hero-portrait-frame relative group w-full max-w-[320px] aspect-[4/5] rounded-2xl overflow-hidden border border-white/15 bg-[#0a0a0e] shadow-2xl transition-all duration-500 hover:border-white/35">
+            <div className="pointer-events-none absolute top-3.5 left-3.5 w-3 h-3 border-t border-l border-white/40 z-20 transition-all duration-300 group-hover:border-white" />
+            <div className="pointer-events-none absolute top-3.5 right-3.5 w-3 h-3 border-t border-r border-white/40 z-20 transition-all duration-300 group-hover:border-white" />
+            <div className="pointer-events-none absolute bottom-3.5 left-3.5 w-3 h-3 border-b border-l border-white/40 z-20 transition-all duration-300 group-hover:border-white" />
+            <div className="pointer-events-none absolute bottom-3.5 right-3.5 w-3 h-3 border-b border-r border-white/40 z-20 transition-all duration-300 group-hover:border-white" />
 
             <Image
               src="/profile.png"
               alt="Neyamul Islam"
               fill
               priority
-              sizes="(max-width: 640px) 260px, (max-width: 1024px) 320px, 340px"
+              sizes="(max-width: 1024px) 320px, 340px"
               className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
             />
 
@@ -255,13 +285,13 @@ export default function Hero() {
 
             <div className="absolute bottom-4 left-4 right-4 z-20 flex items-center justify-between text-xs">
               <span
-                className="font-mono text-[11px] text-white/90 uppercase tracking-widest"
+                className="font-mono text-[11px] text-white/90 uppercase tracking-widest px-2.5 py-1 rounded bg-black/60 backdrop-blur-sm border border-white/15"
                 style={{ fontFamily: "'Space Mono', monospace" }}
               >
                 🇧🇩 BANGLADESH
               </span>
               <span
-                className="font-mono text-[10px] text-white/50 tracking-wider"
+                className="font-mono text-[10px] text-white/60 tracking-wider px-2.5 py-1 rounded bg-black/60 backdrop-blur-sm border border-white/15"
                 style={{ fontFamily: "'Space Mono', monospace" }}
               >
                 EST. 2024
@@ -273,20 +303,19 @@ export default function Hero() {
 
       {/* Bottom Editorial Coordinates & Socials */}
       <motion.div
-        className="flex flex-wrap items-center justify-between gap-6 border-t border-white/[0.08] pt-8 mt-16 text-xs text-[#82828e]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={transition(0.74, 0.8)}
+        variants={itemVariants}
+        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 border-t border-white/[0.08] pt-6 sm:pt-8 mt-10 sm:mt-16 text-xs text-[#82828e]"
       >
         <div
-          className="flex items-center gap-6"
+          className="flex flex-wrap items-center gap-5 sm:gap-6"
           style={{ fontFamily: "'Space Mono', monospace" }}
         >
           <a
             href="https://github.com/nymlCodes"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-white transition-colors duration-200 inline-flex items-center gap-2"
+            className="hover:text-white transition-colors duration-200 inline-flex items-center gap-2 py-1 min-h-[44px]"
+            aria-label="Visit GitHub Profile"
           >
             <FaGithub className="text-sm" />
             <span>GITHUB</span>
@@ -297,7 +326,8 @@ export default function Hero() {
             href="https://www.linkedin.com/in/neya-mul/"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-white transition-colors duration-200 inline-flex items-center gap-2"
+            className="hover:text-white transition-colors duration-200 inline-flex items-center gap-2 py-1 min-h-[44px]"
+            aria-label="Visit LinkedIn Profile"
           >
             <FaLinkedin className="text-sm" />
             <span>LINKEDIN</span>
@@ -306,12 +336,33 @@ export default function Hero() {
         </div>
 
         <div
-          className="text-xs tracking-widest uppercase text-[#82828e]"
+          className="text-[11px] sm:text-xs tracking-widest uppercase text-[#82828e]"
           style={{ fontFamily: "'Space Mono', monospace" }}
         >
           SCROLL TO EXPLORE ↓
         </div>
       </motion.div>
-    </section>
+
+      <style jsx>{`
+        @keyframes heroFloat {
+          0% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-8px);
+          }
+          100% {
+            transform: translateY(0px);
+          }
+        }
+
+        @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+          .hero-portrait-frame {
+            animation: heroFloat 8s ease-in-out infinite;
+          }
+        }
+      `}</style>
+    </motion.section>
   )
 }
+
