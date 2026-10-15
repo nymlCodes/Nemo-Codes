@@ -13,11 +13,11 @@ interface ProjectCardProps {
 export default function ProjectCard({ project, index }: ProjectCardProps) {
   return (
     <motion.div
-      className="group relative rounded-2xl border border-white/10 bg-[#0c0c10] p-5 sm:p-6 space-y-5 transition-all duration-300 hover:border-white/25"
+      className="group relative rounded-2xl border border-white/10 bg-[#0c0c10] p-4 xs:p-5 sm:p-6 space-y-4 sm:space-y-5 transition-all duration-300 hover:border-white/25 min-w-0"
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.6, delay: (index % 3) * 0.1, ease: [0.22, 1, 0.36, 1] }}
+      viewport={{ once: false, amount: 0.15 }}
+      transition={{ duration: 0.6, delay: (index % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ y: -4 }}
     >
       <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-[#121218]">

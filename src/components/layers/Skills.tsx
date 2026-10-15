@@ -6,21 +6,45 @@ import { VscVscode } from 'react-icons/vsc'
 import { SiGithub, SiFigma, SiNpm, SiVite, SiReactrouter, SiVercel, SiNextdotjs, SiReact, SiExpress, SiNodedotjs, SiMongodb, SiTypescript, SiTailwindcss, SiJavascript, SiHtml5, SiCss, SiPostgresql, SiPrisma } from 'react-icons/si'
 import { MdOutlineDeveloperMode } from 'react-icons/md'
 
-const vp = { once: true, margin: '-60px' }
+const vpRepeat = { once: false, amount: 0.15 }
 
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } },
+  hidden: {
+    opacity: 0,
+    y: 28,
+    transition: { duration: 0.35, ease: 'easeOut' },
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
+  },
 }
 
 const staggerList: Variants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.055, delayChildren: 0.05 } },
+  hidden: {
+    opacity: 0,
+    transition: { staggerChildren: 0.04, staggerDirection: -1 },
+  },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.055, delayChildren: 0.05 },
+  },
 }
 
 const rowItem: Variants = {
-  hidden: { opacity: 0, x: -16 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+  hidden: {
+    opacity: 0,
+    x: -16,
+    y: 10,
+    transition: { duration: 0.3, ease: 'easeOut' },
+  },
+  visible: {
+    opacity: 1,
+    x: 0,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+  },
 }
 
 export default function Skills() {
@@ -81,25 +105,25 @@ export default function Skills() {
   return (
     <section
       id="skills"
-      className="relative w-full max-w-7xl mx-auto px-4 xs:px-6 sm:px-10 lg:px-16 py-16 sm:py-24 space-y-16 sm:space-y-24 overflow-hidden"
+      className="relative w-full max-w-7xl mx-auto px-4 xs:px-6 sm:px-10 lg:px-16 py-12 xs:py-16 sm:py-24 space-y-12 xs:space-y-16 sm:space-y-24 overflow-hidden"
     >
       {/* Editorial Header — Refined & Balanced */}
       <motion.div
-        className="space-y-4 border-b border-white/[0.08] pb-8 sm:pb-10"
+        className="space-y-3 sm:space-y-4 border-b border-white/[0.08] pb-6 sm:pb-10"
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
-        viewport={vp}
+        viewport={vpRepeat}
       >
-        <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4">
           <p
-            className="text-[11px] sm:text-xs tracking-[0.2em] sm:tracking-[0.25em] uppercase text-[#82828e]"
+            className="text-[10px] xs:text-[11px] sm:text-xs tracking-[0.12em] xs:tracking-[0.2em] sm:tracking-[0.25em] uppercase text-[#82828e] break-words"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
             INDEX // 03 — CAPABILITIES &amp; STACK
           </p>
           <p
-            className="text-[11px] sm:text-xs tracking-[0.15em] sm:tracking-[0.2em] uppercase text-white/50"
+            className="text-[10px] xs:text-[11px] sm:text-xs tracking-[0.12em] xs:tracking-[0.15em] sm:tracking-[0.2em] uppercase text-white/50"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
             ENGINEERED TOOLS
@@ -107,14 +131,14 @@ export default function Skills() {
         </div>
 
         <h1
-          className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight uppercase"
+          className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight uppercase break-words"
           style={{ fontFamily: "'Syne', 'Outfit', sans-serif" }}
         >
           TECHNICAL <span className="text-[#8a8a96]">REPERTOIRE.</span>
         </h1>
 
         <p
-          className="text-sm sm:text-base text-[#a0a0ae] max-w-2xl font-light leading-relaxed"
+          className="text-xs xs:text-sm sm:text-base text-[#a0a0ae] max-w-2xl font-light leading-relaxed"
           style={{ fontFamily: "'Space Grotesk', sans-serif" }}
         >
           An intentional arsenal of modern web technologies, runtime frameworks,
@@ -124,11 +148,11 @@ export default function Skills() {
 
       {/* Kinetic Typography Marquee Strips */}
       <motion.div
-        className="space-y-3 sm:space-y-4 overflow-hidden border-y border-white/[0.08] py-6 sm:py-8 select-none pointer-events-none"
+        className="space-y-3 sm:space-y-4 overflow-hidden border-y border-white/[0.08] py-4 xs:py-6 sm:py-8 select-none pointer-events-none"
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
-        viewport={vp}
+        viewport={vpRepeat}
       >
         {/* Row 1 */}
         <div className="flex whitespace-nowrap overflow-hidden">
@@ -184,7 +208,7 @@ export default function Skills() {
       </motion.div>
 
       {/* Category Filter Chips */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-1.5 xs:gap-2">
         {([
           { id: 'all', label: 'ALL CAPABILITIES' },
           { id: 'frontend', label: 'FRONTEND' },
@@ -195,7 +219,7 @@ export default function Skills() {
           <button
             key={id}
             onClick={() => setActiveCategory(id)}
-            className={`px-3 sm:px-4 py-2 rounded-full text-[11px] sm:text-xs font-mono uppercase tracking-wider transition-all duration-300 min-h-[44px] ${
+            className={`px-2.5 xs:px-3 sm:px-4 py-1.5 xs:py-2 rounded-full text-[10px] xs:text-[11px] sm:text-xs font-mono uppercase tracking-wider transition-all duration-300 min-h-[44px] ${
               activeCategory === id
                 ? 'bg-white text-black font-bold'
                 : 'bg-white/[0.04] text-white/70 hover:text-white border border-white/10 hover:border-white/25'
@@ -207,25 +231,25 @@ export default function Skills() {
       </div>
 
       {/* Editorial Grouped Typographic Roster */}
-      <div className="space-y-12 sm:space-y-16">
+      <div className="space-y-10 sm:space-y-16">
         {filteredCategories.map((group, gIdx) => (
           <motion.div
             key={group.category}
-            className="space-y-5 sm:space-y-6"
+            className="space-y-4 sm:space-y-6"
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
-            viewport={vp}
+            viewport={vpRepeat}
           >
-            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3 sm:pb-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.08] pb-3 sm:pb-4">
               <span
-                className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.2em] sm:tracking-[0.25em] text-[#82828e]"
+                className="text-[10px] xs:text-[11px] sm:text-xs font-mono uppercase tracking-[0.14em] xs:tracking-[0.2em] sm:tracking-[0.25em] text-[#82828e]"
                 style={{ fontFamily: "'Space Mono', monospace" }}
               >
                 0{gIdx + 1} // {group.category}
               </span>
               <span
-                className="text-[11px] sm:text-xs font-mono text-white/40"
+                className="text-[10px] xs:text-[11px] sm:text-xs font-mono text-white/40"
                 style={{ fontFamily: "'Space Mono', monospace" }}
               >
                 [{group.items.length} TECH]
@@ -237,7 +261,7 @@ export default function Skills() {
               variants={staggerList}
               initial="hidden"
               whileInView="visible"
-              viewport={vp}
+              viewport={vpRepeat}
             >
               {group.items.map((item) => {
                 const Icon = item.icon
@@ -245,14 +269,14 @@ export default function Skills() {
                   <motion.div
                     key={item.name}
                     variants={rowItem}
-                    className="group py-3.5 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-4 hover:pl-2 sm:hover:pl-3 transition-all duration-300"
+                    className="group py-3 xs:py-3.5 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-4 hover:pl-1.5 xs:hover:pl-2 sm:hover:pl-3 transition-all duration-300 min-w-0"
                   >
-                    <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                    <div className="flex items-center gap-2.5 xs:gap-3 sm:gap-4 min-w-0">
                       <div className="w-7 h-7 sm:w-8 sm:h-8 shrink-0 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center text-white/80 group-hover:text-white group-hover:border-white/30 transition-all duration-300">
                         <Icon className="text-sm sm:text-base" />
                       </div>
                       <span
-                        className="text-base sm:text-xl lg:text-2xl xl:text-3xl font-extrabold text-white group-hover:text-white transition-colors truncate"
+                        className="text-sm xs:text-base sm:text-xl lg:text-2xl xl:text-3xl font-extrabold text-white group-hover:text-white transition-colors truncate"
                         style={{ fontFamily: "'Outfit', sans-serif" }}
                       >
                         {item.name}
@@ -260,7 +284,7 @@ export default function Skills() {
                     </div>
 
                     <span
-                      className="text-[11px] sm:text-xs font-mono text-[#82828e] group-hover:text-white/80 transition-colors uppercase tracking-wider sm:text-right shrink-0 ml-10 sm:ml-0"
+                      className="text-[10px] xs:text-[11px] sm:text-xs font-mono text-[#82828e] group-hover:text-white/80 transition-colors uppercase tracking-wider sm:text-right shrink-0 ml-9 sm:ml-0 break-words"
                       style={{ fontFamily: "'Space Mono', monospace" }}
                     >
                       {item.role}

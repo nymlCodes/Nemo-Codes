@@ -4,16 +4,20 @@ import React, { useEffect, useState } from 'react'
 
 interface SplashScreenProps {
   onFinished?: () => void
+  onFadeStart?: () => void
 }
 
-export default function SplashScreen({ onFinished }: SplashScreenProps) {
+export default function SplashScreen({ onFinished, onFadeStart }: SplashScreenProps) {
   const [phase, setPhase] = useState<'in' | 'hold' | 'out'>('in')
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
 
     const holdTimer = setTimeout(() => setPhase('hold'), 700)
-    const fadeTimer = setTimeout(() => setPhase('out'), 1800)
+    const fadeTimer = setTimeout(() => {
+      setPhase('out')
+      onFadeStart?.()
+    }, 1800)
     const doneTimer = setTimeout(() => onFinished?.(), 2500)
 
     return () => {
@@ -22,7 +26,7 @@ export default function SplashScreen({ onFinished }: SplashScreenProps) {
       clearTimeout(fadeTimer)
       clearTimeout(doneTimer)
     }
-  }, [onFinished])
+  }, [onFinished, onFadeStart])
 
   return (
     <div

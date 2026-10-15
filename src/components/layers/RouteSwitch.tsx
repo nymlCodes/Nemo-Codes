@@ -309,14 +309,14 @@ export default function RouteSwitch({ introStage = 'completed' }: RouteSwitchPro
           Restored original bottom dock style
          ───────────────────────────────────────── */}
       <nav
-        className="md:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-50 select-none max-w-[95%]"
+        className="md:hidden fixed bottom-4 xs:bottom-5 left-1/2 -translate-x-1/2 z-50 select-none max-w-[96%]"
         aria-label="Mobile Navigation"
       >
         <motion.div
           variants={mobileNavVariants}
           initial="hidden"
           animate="visible"
-          className="flex items-center gap-1 px-3 py-2 rounded-2xl bg-[#08080c]/95 backdrop-blur-2xl border border-white/15 shadow-[0_8px_40px_rgba(0,0,0,0.8)]"
+          className="flex items-center gap-0.5 xs:gap-1 px-1.5 xs:px-3 py-1.5 xs:py-2 rounded-2xl bg-[#08080c]/95 backdrop-blur-2xl border border-white/15 shadow-[0_8px_40px_rgba(0,0,0,0.8)]"
         >
           {routes.map((route, i) => {
             const Icon = route.icon
@@ -332,7 +332,7 @@ export default function RouteSwitch({ introStage = 'completed' }: RouteSwitchPro
               >
                 <Link
                   href={route.path}
-                  className={`relative flex flex-col items-center justify-center gap-0.5 px-2.5 py-1.5 rounded-xl transition-all duration-300 min-w-[44px] ${
+                  className={`relative flex flex-col items-center justify-center gap-0.5 px-1.5 xs:px-2.5 py-1 xs:py-1.5 rounded-xl transition-all duration-300 min-w-[39px] xs:min-w-[44px] ${
                     isActive
                       ? 'bg-white text-black shadow-lg shadow-white/20'
                       : 'text-gray-400 hover:text-white hover:bg-white/[0.07] active:scale-95'

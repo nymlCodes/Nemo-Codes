@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { motion, type Variants } from 'motion/react'
 import { FiArrowUpRight, FiDownload, FiArrowRight } from 'react-icons/fi'
 import { FaGithub, FaLinkedin } from 'react-icons/fa'
+import { useSplash } from '../HomeClient'
 
 const roles = [
   'MERN Stack Developer',
@@ -14,20 +15,21 @@ const roles = [
   'UI/UX & Frontend Lover',
 ]
 
-// Staggered motion variants for orchestrated editorial reveal
-const containerVariants: Variants = {
+// ── Hero Section Entrance & Scroll-Reveal Variants ──
+
+const heroSectionVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.12,
+      staggerChildren: 0.08,
+      delayChildren: 0.05,
     },
   },
 }
 
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 22 },
+const topBarVariants: Variants = {
+  hidden: { opacity: 0, y: -18 },
   visible: {
     opacity: 1,
     y: 0,
@@ -38,25 +40,138 @@ const itemVariants: Variants = {
   },
 }
 
-const imageVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.94, y: 20 },
+const subtitleVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
   visible: {
     opacity: 1,
-    scale: 1,
     y: 0,
     transition: {
+      duration: 0.65,
+      ease: [0.22, 1, 0.36, 1],
+      delay: 0.12,
+    },
+  },
+}
+
+const headingFirstLineVariants: Variants = {
+  hidden: { opacity: 0, y: 35, filter: 'blur(6px)' },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: {
       duration: 0.85,
+      ease: [0.16, 1, 0.3, 1],
+      delay: 0.18,
+    },
+  },
+}
+
+const headingSecondLineVariants: Variants = {
+  hidden: { opacity: 0, y: 35, filter: 'blur(6px)' },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: {
+      duration: 0.85,
+      ease: [0.16, 1, 0.3, 1],
+      delay: 0.3,
+    },
+  },
+}
+
+const rolePillVariants: Variants = {
+  hidden: { opacity: 0, y: 16, scale: 0.94 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.6,
+      ease: [0.22, 1, 0.36, 1],
+      delay: 0.38,
+    },
+  },
+}
+
+const bioVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.7,
+      ease: [0.22, 1, 0.36, 1],
+      delay: 0.44,
+    },
+  },
+}
+
+const ctaContainerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.5,
+    },
+  },
+}
+
+const ctaItemVariants: Variants = {
+  hidden: { opacity: 0, y: 16, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.5,
       ease: [0.22, 1, 0.36, 1],
     },
   },
 }
 
+const heroImageVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    scale: 0.9,
+    y: 28,
+    filter: 'blur(6px)',
+  },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: {
+      duration: 0.9,
+      ease: [0.16, 1, 0.3, 1],
+      delay: 0.25,
+    },
+  },
+}
+
+const bottomBarVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.65,
+      ease: [0.22, 1, 0.36, 1],
+      delay: 0.62,
+    },
+  },
+}
+
 export default function Hero() {
+  const { splashDone } = useSplash()
   const [roleIndex, setRoleIndex] = useState(0)
   const [displayText, setDisplayText] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
 
-  // Fluid, jitter-free typewriter engine — preserved
+  // Fluid typewriter engine
   useEffect(() => {
     let timer: NodeJS.Timeout
     const currentFullText = roles[roleIndex]
@@ -88,23 +203,46 @@ export default function Hero() {
   return (
     <motion.section
       id="home"
-      variants={containerVariants}
+      variants={heroSectionVariants}
       initial="hidden"
-      animate="visible"
-      className="relative min-h-[92vh] flex flex-col justify-between pt-20 sm:pt-24 pb-14 sm:pb-16 px-4 xs:px-6 sm:px-10 lg:px-16 max-w-7xl mx-auto overflow-hidden"
+      animate={splashDone ? 'visible' : 'hidden'}
+      whileInView={splashDone ? 'visible' : 'hidden'}
+      viewport={{ once: false, amount: 0.15 }}
+      className="relative min-h-[92vh] flex flex-col justify-between pt-16 xs:pt-20 sm:pt-24 pb-12 xs:pb-14 sm:pb-16 px-4 xs:px-6 sm:px-10 lg:px-16 max-w-7xl mx-auto"
     >
+      {/* Subtle Ambient Breathing Background Element (No particles, purely tonal) */}
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] sm:w-[750px] lg:w-[900px] h-[280px] sm:h-[400px] rounded-full blur-[140px] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-transparent -z-10 select-none"
+        initial={{ opacity: 0, scale: 0.88 }}
+        animate={
+          splashDone
+            ? {
+              opacity: [0.05, 0.12, 0.05],
+              scale: [0.94, 1.05, 0.94],
+              transition: {
+                duration: 8,
+                repeat: Infinity,
+                ease: 'easeInOut',
+                delay: 0.8,
+              },
+            }
+            : { opacity: 0, scale: 0.88 }
+        }
+      />
+
       {/* Top Editorial Sub-bar */}
       <motion.div
-        variants={itemVariants}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-white/[0.08] pb-5 sm:pb-6 mb-8 sm:mb-14"
+        variants={topBarVariants}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 border-b border-white/[0.08] pb-4 xs:pb-5 sm:pb-6 mb-6 xs:mb-8 sm:mb-14"
       >
-        <div className="flex items-center gap-2.5 sm:gap-3">
+        <div className="flex items-center gap-2 xs:gap-2.5 sm:gap-3">
           <span className="relative flex h-2 w-2 shrink-0">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-70" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
           </span>
           <span
-            className="text-[10px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.25em] text-white/90 font-bold"
+            className="text-[9px] xs:text-[10px] sm:text-xs uppercase tracking-[0.1em] xs:tracking-[0.14em] sm:tracking-[0.25em] text-white/90 font-bold break-words"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
             AVAILABLE FOR GLOBAL ROLES &amp; WORK // 2026
@@ -112,7 +250,7 @@ export default function Hero() {
         </div>
 
         <div
-          className="text-[10px] sm:text-xs uppercase tracking-[0.12em] sm:tracking-[0.2em] text-[#82828e]"
+          className="text-[9px] xs:text-[10px] sm:text-xs uppercase tracking-[0.1em] xs:tracking-[0.12em] sm:tracking-[0.2em] text-[#82828e] break-words"
           style={{ fontFamily: "'Space Mono', monospace" }}
         >
           DHAKA, BANGLADESH // 23.8103° N, 90.4125° E
@@ -122,37 +260,45 @@ export default function Hero() {
       {/* Main Asymmetric Hero Stage */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-8 items-end my-auto">
         {/* Left Column: Monumental Typography & Narrative */}
-        <div className="lg:col-span-8 space-y-6 sm:space-y-8">
+        <div className="lg:col-span-8 space-y-5 sm:space-y-8 w-full min-w-0">
           <div className="space-y-2 sm:space-y-3">
             <motion.p
-              variants={itemVariants}
-              className="text-[11px] sm:text-xs md:text-sm tracking-[0.2em] sm:tracking-[0.3em] uppercase text-[#82828e] font-medium"
+              variants={subtitleVariants}
+              className="text-[10px] xs:text-[11px] sm:text-xs md:text-sm tracking-[0.16em] xs:tracking-[0.2em] sm:tracking-[0.3em] uppercase text-[#82828e] font-medium break-words"
               style={{ fontFamily: "'Space Mono', monospace" }}
             >
               [ ARTISANAL FULL-STACK ENGINEERING ]
             </motion.p>
 
             <motion.h1
-              variants={itemVariants}
-              className="text-[2.6rem] xs:text-5xl sm:text-7xl md:text-8xl xl:text-9xl font-extrabold text-white leading-[0.92] sm:leading-[0.88] tracking-[-0.04em] uppercase select-none"
+              className="text-[clamp(2.1rem,8.2vw,7.5rem)] sm:text-7xl md:text-8xl xl:text-9xl font-extrabold text-white leading-[0.92] sm:leading-[0.88] tracking-[-0.03em] uppercase select-none"
               style={{ fontFamily: "'Syne', 'Outfit', sans-serif" }}
             >
-              <span className="inline-block transition-transform duration-500 hover:translate-x-1">
-                NEYAMUL
+              <span className="block overflow-visible">
+                <motion.span
+                  variants={headingFirstLineVariants}
+                  className="inline-block whitespace-nowrap transition-transform duration-500 hover:translate-x-1"
+                >
+                  NEYAMUL
+                </motion.span>
               </span>
-              <br />
-              <span className="text-[#a8a8b4] inline-block transition-all duration-500 hover:text-white hover:translate-x-1">
-                ISLAM
+              <span className="block overflow-visible mt-1 sm:mt-2">
+                <motion.span
+                  variants={headingSecondLineVariants}
+                  className="text-[#a8a8b4] inline-block whitespace-nowrap transition-all duration-500 hover:text-white hover:translate-x-1"
+                >
+                  ISLAM
+                </motion.span>
               </span>
             </motion.h1>
           </div>
 
           {/* ── MOBILE ONLY: Profile photo between name & typewriter ── */}
           <motion.div
-            variants={imageVariants}
+            variants={heroImageVariants}
             className="lg:hidden flex justify-center sm:justify-end py-2"
           >
-            <div className="hero-portrait-frame relative group w-[220px] xs:w-[250px] sm:w-[290px] aspect-[4/5] rounded-2xl overflow-hidden border border-white/15 bg-[#0a0a0e] shadow-2xl transition-all duration-500 hover:border-white/35">
+            <div className="hero-portrait-frame relative group w-[200px] xs:w-[240px] sm:w-[290px] aspect-[4/5] rounded-2xl overflow-hidden border border-white/15 bg-[#0a0a0e] shadow-2xl transition-all duration-500 hover:border-white/35">
               {/* Corner crosshairs */}
               <div className="pointer-events-none absolute top-3 left-3 w-3 h-3 border-t border-l border-white/40 z-20 transition-all duration-300 group-hover:border-white" />
               <div className="pointer-events-none absolute top-3 right-3 w-3 h-3 border-t border-r border-white/40 z-20 transition-all duration-300 group-hover:border-white" />
@@ -164,7 +310,7 @@ export default function Hero() {
                 alt="Neyamul Islam"
                 fill
                 priority
-                sizes="(max-width: 640px) 250px, 290px"
+                sizes="(max-width: 640px) 240px, 290px"
                 className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
               />
 
@@ -189,15 +335,16 @@ export default function Hero() {
 
           {/* Layout-Stable Typewriter Role Pill */}
           <motion.div
-            variants={itemVariants}
-            className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-1"
+            variants={rolePillVariants}
+            className="flex flex-wrap items-center gap-2 xs:gap-2.5 sm:gap-3 pt-1"
           >
             <span
-              className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.14em] text-[#82828e] shrink-0"
+              className="text-[10px] xs:text-[11px] sm:text-xs font-mono uppercase tracking-[0.14em] text-[#82828e] shrink-0"
               style={{ fontFamily: "'Space Mono', monospace" }}
             >
               SPECIALIZING IN:
             </span>
+
             {/* Ghost sizer locks container width — typewriter never shifts layout */}
             <div className="relative inline-flex items-center px-3 sm:px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/10 transition-colors duration-300 hover:border-white/25">
               <span
@@ -221,49 +368,55 @@ export default function Hero() {
 
           {/* Statement Bio */}
           <motion.p
-            variants={itemVariants}
-            className="text-sm sm:text-base md:text-lg lg:text-xl text-[#b5b5c2] leading-relaxed max-w-2xl font-light"
+            variants={bioVariants}
+            className="text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl text-[#b5b5c2] leading-relaxed max-w-2xl font-light"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             A passionate developer from Bangladesh, building beautiful and functional
             web experiences. Fan of clean code, rigorous architecture, and great design.
           </motion.p>
 
-          {/* Action CTAs with Refined Micro-interactions */}
+          {/* Action CTAs with Staggered Entrance Micro-interactions */}
           <motion.div
-            variants={itemVariants}
-            className="flex flex-wrap items-center gap-3 sm:gap-4 pt-3 sm:pt-4"
+            variants={ctaContainerVariants}
+            className="flex flex-wrap items-center gap-2.5 xs:gap-3 sm:gap-4 pt-2 xs:pt-3 sm:pt-4"
           >
-            <Link
-              href="/projects"
-              className="btn-editorial-primary group w-full xs:w-auto justify-center"
-            >
-              <span>View Case Studies</span>
-              <FiArrowRight className="text-sm transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
+            <motion.div variants={ctaItemVariants} className="w-full xs:w-auto">
+              <Link
+                href="/projects"
+                className="btn-editorial-primary group w-full xs:w-auto justify-center"
+              >
+                <span>View Case Studies</span>
+                <FiArrowRight className="text-sm transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
+            </motion.div>
 
-            <Link
-              href="/contact"
-              className="btn-editorial-ghost w-full xs:w-auto justify-center"
-            >
-              <span>Get In Touch</span>
-            </Link>
+            <motion.div variants={ctaItemVariants} className="w-full xs:w-auto">
+              <Link
+                href="/contact"
+                className="btn-editorial-ghost w-full xs:w-auto justify-center"
+              >
+                <span>Get In Touch</span>
+              </Link>
+            </motion.div>
 
-            <a
-              href="https://drive.google.com/file/d/1qbVFIHhEWMtQ-m-UawTH8NwfVrJbNJoq/view?usp=drive_link"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-editorial-ghost w-full xs:w-auto justify-center group"
-            >
-              <FiDownload className="text-sm transition-transform duration-300 group-hover:translate-y-0.5" />
-              <span>Resume</span>
-            </a>
+            <motion.div variants={ctaItemVariants} className="w-full xs:w-auto">
+              <a
+                href="https://drive.google.com/file/d/1qbVFIHhEWMtQ-m-UawTH8NwfVrJbNJoq/view?usp=drive_link"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-editorial-ghost w-full xs:w-auto justify-center group"
+              >
+                <FiDownload className="text-sm transition-transform duration-300 group-hover:translate-y-0.5" />
+                <span>Resume</span>
+              </a>
+            </motion.div>
           </motion.div>
         </div>
 
         {/* Right Column: Architectural Portrait Frame — desktop only */}
         <motion.div
-          variants={imageVariants}
+          variants={heroImageVariants}
           className="lg:col-span-4 hidden lg:flex flex-col items-end justify-end"
         >
           <div className="hero-portrait-frame relative group w-full max-w-[320px] aspect-[4/5] rounded-2xl overflow-hidden border border-white/15 bg-[#0a0a0e] shadow-2xl transition-all duration-500 hover:border-white/35">
@@ -303,11 +456,11 @@ export default function Hero() {
 
       {/* Bottom Editorial Coordinates & Socials */}
       <motion.div
-        variants={itemVariants}
-        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 border-t border-white/[0.08] pt-6 sm:pt-8 mt-10 sm:mt-16 text-xs text-[#82828e]"
+        variants={bottomBarVariants}
+        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 xs:gap-4 sm:gap-6 border-t border-white/[0.08] pt-4 xs:pt-6 sm:pt-8 mt-8 xs:mt-10 sm:mt-16 text-xs text-[#82828e]"
       >
         <div
-          className="flex flex-wrap items-center gap-5 sm:gap-6"
+          className="flex flex-wrap items-center gap-4 sm:gap-6"
           style={{ fontFamily: "'Space Mono', monospace" }}
         >
           <a
@@ -336,7 +489,7 @@ export default function Hero() {
         </div>
 
         <div
-          className="text-[11px] sm:text-xs tracking-widest uppercase text-[#82828e]"
+          className="text-[10px] xs:text-[11px] sm:text-xs tracking-widest uppercase text-[#82828e]"
           style={{ fontFamily: "'Space Mono', monospace" }}
         >
           SCROLL TO EXPLORE ↓
@@ -365,4 +518,5 @@ export default function Hero() {
     </motion.section>
   )
 }
+
 
