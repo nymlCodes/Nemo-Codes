@@ -208,12 +208,12 @@ export default function Hero() {
       animate={splashDone ? 'visible' : 'hidden'}
       whileInView={splashDone ? 'visible' : 'hidden'}
       viewport={{ once: false, amount: 0.15 }}
-      className="relative min-h-[92vh] flex flex-col justify-between pt-16 xs:pt-20 sm:pt-24 pb-12 xs:pb-14 sm:pb-16 px-4 xs:px-6 sm:px-10 lg:px-16 max-w-7xl mx-auto"
+      className="relative min-h-[92vh] flex flex-col justify-between pt-16 xs:pt-20 sm:pt-24 pb-12 xs:pb-14 sm:pb-16 px-4 xs:px-6 sm:px-10 lg:px-16 max-w-7xl mx-auto overflow-x-hidden"
     >
       {/* Subtle Ambient Breathing Background Element (No particles, purely tonal) */}
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] sm:w-[750px] lg:w-[900px] h-[280px] sm:h-[400px] rounded-full blur-[140px] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-transparent -z-10 select-none"
+        className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 w-[min(500px,90vw)] sm:w-[min(750px,95vw)] lg:w-[900px] h-[280px] sm:h-[400px] rounded-full blur-[140px] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-transparent -z-10 select-none"
         initial={{ opacity: 0, scale: 0.88 }}
         animate={
           splashDone
@@ -271,34 +271,36 @@ export default function Hero() {
             </motion.p>
 
             <motion.h1
-              className="text-[clamp(2.1rem,8.2vw,7.5rem)] sm:text-7xl md:text-8xl xl:text-9xl font-extrabold text-white leading-[0.92] sm:leading-[0.88] tracking-[-0.03em] uppercase select-none"
-              style={{ fontFamily: "'Syne', 'Outfit', sans-serif" }}
+              className="font-extrabold text-white uppercase select-none leading-[0.9] tracking-[-0.03em]"
+              style={{
+                fontFamily: "'Syne', 'Outfit', sans-serif",
+                fontSize: 'clamp(2.4rem, 11vw, 9rem)',
+              }}
             >
-              <span className="block overflow-visible">
-                <motion.span
-                  variants={headingFirstLineVariants}
-                  className="inline-block whitespace-nowrap transition-transform duration-500 hover:translate-x-1"
-                >
-                  NEYAMUL
-                </motion.span>
-              </span>
-              <span className="block overflow-visible mt-1 sm:mt-2">
-                <motion.span
-                  variants={headingSecondLineVariants}
-                  className="text-[#a8a8b4] inline-block whitespace-nowrap transition-all duration-500 hover:text-white hover:translate-x-1"
-                >
-                  ISLAM
-                </motion.span>
-              </span>
+              <motion.span
+                variants={headingFirstLineVariants}
+                className="block transition-transform duration-500 hover:translate-x-1"
+              >
+                NEYAMUL
+              </motion.span>
+              <motion.span
+                variants={headingSecondLineVariants}
+                className="text-[#a8a8b4] block transition-all duration-500 hover:text-white hover:translate-x-1 mt-1"
+              >
+                ISLAM
+              </motion.span>
             </motion.h1>
           </div>
 
-          {/* ── MOBILE ONLY: Profile photo between name & typewriter ── */}
+          {/* ── MOBILE/TABLET ONLY: Profile photo between name & typewriter ── */}
           <motion.div
             variants={heroImageVariants}
-            className="lg:hidden flex justify-center sm:justify-end py-2"
+            className="lg:hidden flex justify-center sm:justify-center py-2"
           >
-            <div className="hero-portrait-frame relative group w-[200px] xs:w-[240px] sm:w-[290px] aspect-[4/5] rounded-2xl overflow-hidden border border-white/15 bg-[#0a0a0e] shadow-2xl transition-all duration-500 hover:border-white/35">
+            <div
+              className="hero-portrait-frame relative group aspect-[4/5] rounded-2xl overflow-hidden border border-white/15 bg-[#0a0a0e] shadow-2xl transition-all duration-500 hover:border-white/35"
+              style={{ width: 'min(52vw, 260px)' }}
+            >
               {/* Corner crosshairs */}
               <div className="pointer-events-none absolute top-3 left-3 w-3 h-3 border-t border-l border-white/40 z-20 transition-all duration-300 group-hover:border-white" />
               <div className="pointer-events-none absolute top-3 right-3 w-3 h-3 border-t border-r border-white/40 z-20 transition-all duration-300 group-hover:border-white" />
@@ -310,7 +312,7 @@ export default function Hero() {
                 alt="Neyamul Islam"
                 fill
                 priority
-                sizes="(max-width: 640px) 240px, 290px"
+                sizes="(max-width: 640px) 52vw, 290px"
                 className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
               />
 
@@ -345,18 +347,18 @@ export default function Hero() {
               SPECIALIZING IN:
             </span>
 
-            {/* Ghost sizer locks container width — typewriter never shifts layout */}
-            <div className="relative inline-flex items-center px-3 sm:px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/10 transition-colors duration-300 hover:border-white/25">
+            {/* Ghost sizer locks container width — capped so it never blows out narrow viewports */}
+            <div className="relative inline-flex items-center px-3 sm:px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/10 transition-colors duration-300 hover:border-white/25 max-w-[min(100%,240px)] sm:max-w-none">
               <span
-                className="invisible select-none pointer-events-none opacity-0 whitespace-nowrap text-xs sm:text-sm md:text-base font-medium"
+                className="invisible select-none pointer-events-none opacity-0 whitespace-nowrap text-xs sm:text-sm font-medium"
                 aria-hidden="true"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 React &amp; Next.js Specialist
               </span>
-              <div className="absolute inset-0 flex items-center px-3 sm:px-4">
+              <div className="absolute inset-0 flex items-center px-3 sm:px-4 overflow-hidden">
                 <span
-                  className="text-xs sm:text-sm md:text-base text-white font-medium whitespace-nowrap tracking-wide"
+                  className="text-xs sm:text-sm text-white font-medium whitespace-nowrap tracking-wide"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   {displayText}
@@ -379,33 +381,33 @@ export default function Hero() {
           {/* Action CTAs with Staggered Entrance Micro-interactions */}
           <motion.div
             variants={ctaContainerVariants}
-            className="flex flex-wrap items-center gap-2.5 xs:gap-3 sm:gap-4 pt-2 xs:pt-3 sm:pt-4"
+            className="grid grid-cols-1 xs:grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2.5 xs:gap-3 sm:gap-4 pt-2 xs:pt-3 sm:pt-4"
           >
-            <motion.div variants={ctaItemVariants} className="w-full xs:w-auto">
+            <motion.div variants={ctaItemVariants} className="xs:col-span-2 sm:w-auto">
               <Link
                 href="/projects"
-                className="btn-editorial-primary group w-full xs:w-auto justify-center"
+                className="btn-editorial-primary group w-full sm:w-auto justify-center"
               >
                 <span>View Case Studies</span>
                 <FiArrowRight className="text-sm transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             </motion.div>
 
-            <motion.div variants={ctaItemVariants} className="w-full xs:w-auto">
+            <motion.div variants={ctaItemVariants} className="sm:w-auto">
               <Link
                 href="/contact"
-                className="btn-editorial-ghost w-full xs:w-auto justify-center"
+                className="btn-editorial-ghost w-full sm:w-auto justify-center"
               >
                 <span>Get In Touch</span>
               </Link>
             </motion.div>
 
-            <motion.div variants={ctaItemVariants} className="w-full xs:w-auto">
+            <motion.div variants={ctaItemVariants} className="sm:w-auto">
               <a
                 href="https://drive.google.com/file/d/1qbVFIHhEWMtQ-m-UawTH8NwfVrJbNJoq/view?usp=drive_link"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-editorial-ghost w-full xs:w-auto justify-center group"
+                className="btn-editorial-ghost w-full sm:w-auto justify-center group"
               >
                 <FiDownload className="text-sm transition-transform duration-300 group-hover:translate-y-0.5" />
                 <span>Resume</span>
@@ -457,7 +459,7 @@ export default function Hero() {
       {/* Bottom Editorial Coordinates & Socials */}
       <motion.div
         variants={bottomBarVariants}
-        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 xs:gap-4 sm:gap-6 border-t border-white/[0.08] pt-4 xs:pt-6 sm:pt-8 mt-8 xs:mt-10 sm:mt-16 text-xs text-[#82828e]"
+        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 xs:gap-4 sm:gap-6 border-t border-white/[0.08] pt-4 xs:pt-6 sm:pt-8 mt-6 xs:mt-8 sm:mt-16 text-xs text-[#82828e]"
       >
         <div
           className="flex flex-wrap items-center gap-4 sm:gap-6"

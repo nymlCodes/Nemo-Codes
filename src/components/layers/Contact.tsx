@@ -147,10 +147,10 @@ export default function Contact() {
         </div>
 
         <h1
-          className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight uppercase break-words"
+          className="text-xl xs:text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight uppercase break-words"
           style={{ fontFamily: "'Syne', 'Outfit', sans-serif" }}
         >
-          INITIATE <span className="text-[#8a8a96]">COMMUNICATION.</span>
+          Let's <span className="text-[#8a8a96]">CONNECT</span>
         </h1>
 
         <p
