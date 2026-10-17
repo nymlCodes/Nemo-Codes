@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, createContext, useContext } from 'react'
+import React, { useState, createContext, useContext, useMemo, useCallback } from 'react'
 import RouteSwitch from './layers/RouteSwitch'
 import AnimatedBackground from './AnimatedBackground'
 import NemoBackground from './NemoBackground'
@@ -24,17 +24,19 @@ export default function HomeClient({ children }: HomeClientProps) {
   const [splashDone, setSplashDone] = useState(false)
   const [introStage, setIntroStage] = useState<IntroStage>('idle')
 
-  const handleFadeStart = () => {
+  const handleFadeStart = useCallback(() => {
     setSplashDone(true)
     setIntroStage('entering')
-  }
+  }, [])
 
-  const handleSplashFinished = () => {
+  const handleSplashFinished = useCallback(() => {
     setSplashDone(true)
-  }
+  }, [])
+
+  const contextValue = useMemo(() => ({ splashDone }), [splashDone])
 
   return (
-    <SplashContext.Provider value={{ splashDone }}>
+    <SplashContext.Provider value={contextValue}>
       <main>
         {!splashDone && (
           <SplashScreen

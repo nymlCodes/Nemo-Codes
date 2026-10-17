@@ -54,13 +54,12 @@ const subtitleVariants: Variants = {
 }
 
 const headingFirstLineVariants: Variants = {
-  hidden: { opacity: 0, y: 35, filter: 'blur(6px)' },
+  hidden: { opacity: 0, y: 32 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: 'blur(0px)',
     transition: {
-      duration: 0.85,
+      duration: 0.75,
       ease: [0.16, 1, 0.3, 1],
       delay: 0.18,
     },
@@ -68,15 +67,14 @@ const headingFirstLineVariants: Variants = {
 }
 
 const headingSecondLineVariants: Variants = {
-  hidden: { opacity: 0, y: 35, filter: 'blur(6px)' },
+  hidden: { opacity: 0, y: 32 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: 'blur(0px)',
     transition: {
-      duration: 0.85,
+      duration: 0.75,
       ease: [0.16, 1, 0.3, 1],
-      delay: 0.3,
+      delay: 0.28,
     },
   },
 }
@@ -135,17 +133,15 @@ const ctaItemVariants: Variants = {
 const heroImageVariants: Variants = {
   hidden: {
     opacity: 0,
-    scale: 0.9,
-    y: 28,
-    filter: 'blur(6px)',
+    scale: 0.92,
+    y: 24,
   },
   visible: {
     opacity: 1,
     scale: 1,
     y: 0,
-    filter: 'blur(0px)',
     transition: {
-      duration: 0.9,
+      duration: 0.8,
       ease: [0.16, 1, 0.3, 1],
       delay: 0.25,
     },
@@ -206,28 +202,25 @@ export default function Hero() {
       variants={heroSectionVariants}
       initial="hidden"
       animate={splashDone ? 'visible' : 'hidden'}
-      whileInView={splashDone ? 'visible' : 'hidden'}
-      viewport={{ once: false, amount: 0.15 }}
       className="relative min-h-[92vh] flex flex-col justify-between pt-16 xs:pt-20 sm:pt-24 pb-12 xs:pb-14 sm:pb-16 px-4 xs:px-6 sm:px-10 lg:px-16 max-w-7xl mx-auto overflow-x-hidden"
     >
-      {/* Subtle Ambient Breathing Background Element (No particles, purely tonal) */}
+      {/* Subtle Ambient Breathing Background Element (No particles, purely tonal, GPU opacity only) */}
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 w-[min(500px,90vw)] sm:w-[min(750px,95vw)] lg:w-[900px] h-[280px] sm:h-[400px] rounded-full blur-[140px] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-transparent -z-10 select-none"
-        initial={{ opacity: 0, scale: 0.88 }}
+        className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 w-[min(500px,90vw)] sm:w-[min(750px,95vw)] lg:w-[900px] h-[280px] sm:h-[400px] rounded-full blur-[140px] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-transparent -z-10 select-none will-change-[opacity]"
+        initial={{ opacity: 0 }}
         animate={
           splashDone
             ? {
-              opacity: [0.05, 0.12, 0.05],
-              scale: [0.94, 1.05, 0.94],
-              transition: {
-                duration: 8,
-                repeat: Infinity,
-                ease: 'easeInOut',
-                delay: 0.8,
-              },
-            }
-            : { opacity: 0, scale: 0.88 }
+                opacity: [0.04, 0.09, 0.04],
+                transition: {
+                  duration: 8,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                  delay: 0.8,
+                },
+              }
+            : { opacity: 0 }
         }
       />
 

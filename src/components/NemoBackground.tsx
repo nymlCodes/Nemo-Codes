@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 /**
  * NemoBackground — Global Typographic Watermark
@@ -13,20 +13,53 @@ import React, { useEffect, useState } from 'react'
  * CSS media queries drive the switch — no JS screen detection needed.
  */
 export default function NemoBackground() {
-  const [offset, setOffset] = useState({ x: 0, y: 0 })
+  const desktopWrapperRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    // Subtle mouse parallax on desktop fine-pointer devices only
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) return
+
+    let targetX = 0
+    let targetY = 0
+    let currentX = 0
+    let currentY = 0
+    let isRunning = false
+    let rAFId: number
+
+    const updateParallax = () => {
+      const dx = targetX - currentX
+      const dy = targetY - currentY
+      currentX += dx * 0.05
+      currentY += dy * 0.05
+
+      if (desktopWrapperRef.current) {
+        desktopWrapperRef.current.style.transform = `translate3d(${currentX.toFixed(2)}px, ${currentY.toFixed(2)}px, 0)`
+      }
+
+      if (Math.abs(dx) > 0.02 || Math.abs(dy) > 0.02) {
+        rAFId = requestAnimationFrame(updateParallax)
+      } else {
+        isRunning = false
+      }
+    }
+
     const handleMouseMove = (e: MouseEvent) => {
       if (window.innerWidth < 768) return
-      const xNorm = (e.clientX / window.innerWidth - 0.5) * 10
-      const yNorm = (e.clientY / window.innerHeight - 0.5) * 7
-      setOffset({ x: xNorm, y: yNorm })
+      targetX = (e.clientX / window.innerWidth - 0.5) * 10
+      targetY = (e.clientY / window.innerHeight - 0.5) * 7
+
+      if (!isRunning) {
+        isRunning = true
+        rAFId = requestAnimationFrame(updateParallax)
+      }
     }
 
     if (window.matchMedia('(pointer: fine)').matches) {
       window.addEventListener('mousemove', handleMouseMove, { passive: true })
-      return () => window.removeEventListener('mousemove', handleMouseMove)
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove)
+        cancelAnimationFrame(rAFId)
+      }
     }
   }, [])
 
@@ -41,11 +74,8 @@ export default function NemoBackground() {
           DESKTOP (≥ 768px): Centered horizontal NEMO
           ══════════════════════════════════════════ */}
       <div
-        className="nemo-desktop-wrapper hidden md:flex flex-col items-center justify-center w-full h-full max-w-full overflow-hidden"
-        style={{
-          transform: `translate3d(${offset.x}px, ${offset.y}px, 0)`,
-          transition: 'transform 1.8s cubic-bezier(0.16, 1, 0.3, 1)',
-        }}
+        ref={desktopWrapperRef}
+        className="nemo-desktop-wrapper hidden md:flex flex-col items-center justify-center w-full h-full max-w-full overflow-hidden will-change-transform"
       >
         <div className="nemo-h-group flex flex-col items-center px-2">
           <span

@@ -7,8 +7,8 @@ import { SiNextdotjs, SiExpress, SiNodedotjs, SiMongodb } from 'react-icons/si'
 import { FaMapMarkerAlt } from 'react-icons/fa'
 import neyamul from '../../../public/neyamul.png'
 
-// Viewport trigger — repeatable scroll-reveal in both directions
-const vpRepeat = { once: false, amount: 0.15 }
+// Viewport trigger — smooth scroll-reveal that stays rendered
+const vpOnce = { once: true, amount: 0.1 }
 
 const fadeUp: Variants = {
   hidden: {
@@ -89,7 +89,7 @@ export default function About() {
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
-        viewport={vpRepeat}
+        viewport={vpOnce}
       >
         <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4">
           <p
@@ -131,7 +131,7 @@ export default function About() {
           variants={fadeLeft}
           initial="hidden"
           whileInView="visible"
-          viewport={vpRepeat}
+          viewport={vpOnce}
         >
           {/* Portrait frame */}
           <div className="relative group rounded-2xl overflow-hidden border border-white/15 bg-[#0a0a0e] shadow-2xl transition-all duration-500 hover:border-white/30 w-full">
@@ -195,7 +195,7 @@ export default function About() {
           variants={fadeRight}
           initial="hidden"
           whileInView="visible"
-          viewport={vpRepeat}
+          viewport={vpOnce}
         >
           {/* Bio */}
           <div className="space-y-4 sm:space-y-6">
@@ -237,7 +237,7 @@ export default function About() {
             variants={staggerContainer}
             initial="hidden"
             whileInView="visible"
-            viewport={vpRepeat}
+            viewport={vpOnce}
           >
             <p
               className="text-[10px] xs:text-[11px] sm:text-xs uppercase tracking-[0.16em] xs:tracking-[0.2em] text-[#82828e]"

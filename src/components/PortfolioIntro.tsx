@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { IntroStage } from '../types'
 
 interface PortfolioIntroProps {
@@ -8,27 +8,22 @@ interface PortfolioIntroProps {
 }
 
 export default function PortfolioIntro({ onIntroStageChange }: PortfolioIntroProps) {
-  const [, setStage] = useState<IntroStage>('entering')
-
   useEffect(() => {
-    // Stage 1: 'entering' (0ms) -> Navigation buttons slither from TOP RIGHT like a snake one by one
+    // Stage 1: 'entering' (0ms) -> Navigation buttons slither in
     onIntroStageChange?.('entering')
 
-    // Stage 2: 'focus' (1650ms) -> All buttons landed, glowing purple aura & discovery hint badge active
+    // Stage 2: 'focus' (1650ms) -> All buttons landed, discovery hint badge active
     const focusTimer = setTimeout(() => {
-      setStage('focus')
       onIntroStageChange?.('focus')
     }, 1650)
 
     // Stage 3: 'collapsing' (3250ms) -> Discovery hint fades out, drawer slides into collapsed tab state
     const collapseTimer = setTimeout(() => {
-      setStage('collapsing')
       onIntroStageChange?.('collapsing')
     }, 3250)
 
     // Stage 4: 'completed' (3750ms) -> Clean up intro, yield control to normal navigation
     const completeTimer = setTimeout(() => {
-      setStage('completed')
       onIntroStageChange?.('completed')
     }, 3750)
 

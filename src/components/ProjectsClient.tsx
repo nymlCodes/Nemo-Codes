@@ -12,7 +12,7 @@ interface ProjectsClientProps {
   projects: Project[]
 }
 
-const vpRepeat = { once: false, amount: 0.12 }
+const vpOnce = { once: true, amount: 0.08 }
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 28, transition: { duration: 0.35, ease: 'easeOut' } },
@@ -89,7 +89,7 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
-        viewport={vpRepeat}
+        viewport={vpOnce}
         className="space-y-3 sm:space-y-4 border-b border-white/[0.08] pb-6 sm:pb-10"
       >
         <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4">
@@ -131,7 +131,7 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
           variants={sceneVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={vpRepeat}
+          viewport={vpOnce}
           className="relative group scroll-mt-24"
         >
           <div className="flex items-center justify-between gap-4 mb-6 text-xs font-mono text-[#82828e]">
@@ -261,7 +261,7 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
           variants={sceneVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={vpRepeat}
+          viewport={vpOnce}
           className="relative group scroll-mt-24 pt-4"
         >
           <div className="flex items-center justify-between gap-4 mb-6 text-xs font-mono text-[#82828e]">
@@ -370,7 +370,7 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
           variants={sceneVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={vpRepeat}
+          viewport={vpOnce}
           className="relative group scroll-mt-24 pt-4"
         >
           <div className="flex items-center justify-between gap-4 mb-6 text-xs font-mono text-[#82828e]">
@@ -494,7 +494,7 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
           variants={sceneVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={vpRepeat}
+          viewport={vpOnce}
           className="relative group scroll-mt-24 pt-4"
         >
           <div className="flex items-center justify-between gap-4 mb-6 text-xs font-mono text-[#82828e]">
@@ -606,7 +606,7 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
           variants={sceneVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={vpRepeat}
+          viewport={vpOnce}
           key={p._id || p.title}
           className="relative group scroll-mt-24 pt-6 border-t border-white/[0.08]"
         >
@@ -678,7 +678,7 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
-        viewport={vpRepeat}
+        viewport={vpOnce}
         className="flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-white/[0.08] pt-12"
       >
         <div>

@@ -32,14 +32,50 @@ export default function AnimatedBackground() {
     let width = (canvas.width = window.innerWidth)
     let height = (canvas.height = window.innerHeight)
 
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) return
+
+    // Pre-render reusable particle sprites on offscreen canvases to eliminate GC overhead
+    // Sprite 1: Soft radial glow (used for micro-dots and wisps)
+    const radialSprite = document.createElement('canvas')
+    radialSprite.width = 64
+    radialSprite.height = 64
+    const radCtx = radialSprite.getContext('2d')
+    if (radCtx) {
+      const grad = radCtx.createRadialGradient(32, 32, 0, 32, 32, 32)
+      grad.addColorStop(0, 'rgba(255, 255, 255, 1)')
+      grad.addColorStop(0.3, 'rgba(255, 255, 255, 0.7)')
+      grad.addColorStop(1, 'rgba(255, 255, 255, 0)')
+      radCtx.fillStyle = grad
+      radCtx.beginPath()
+      radCtx.arc(32, 32, 32, 0, Math.PI * 2)
+      radCtx.fill()
+    }
+
+    // Sprite 2: Soft directional streak with gradient fade
+    const streakSprite = document.createElement('canvas')
+    streakSprite.width = 64
+    streakSprite.height = 16
+    const strkCtx = streakSprite.getContext('2d')
+    if (strkCtx) {
+      const grad = strkCtx.createLinearGradient(0, 0, 64, 0)
+      grad.addColorStop(0, 'rgba(255, 255, 255, 0)')
+      grad.addColorStop(0.6, 'rgba(255, 255, 255, 0.5)')
+      grad.addColorStop(1, 'rgba(255, 255, 255, 1)')
+      strkCtx.fillStyle = grad
+      strkCtx.fillRect(0, 6, 64, 4)
+    }
+
+    let resizeTimeout: NodeJS.Timeout
     const handleResize = () => {
-      if (!canvas) return
-      width = canvas.width = window.innerWidth
-      height = canvas.height = window.innerHeight
+      clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(() => {
+        if (!canvas) return
+        width = canvas.width = window.innerWidth
+        height = canvas.height = window.innerHeight
+      }, 150)
     }
     window.addEventListener('resize', handleResize)
-
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     // Three particle types for organic variety
     type ParticleType = 'dot' | 'streak' | 'wisp'
@@ -55,20 +91,15 @@ export default function AnimatedBackground() {
       opacity: number
       phase: number
       waveAmp: number
-      wispRatio: number // wisp width/height ratio for elongated ellipses
+      wispRatio: number
     }
 
-    // Sparse: ~28 beautiful particles rather than 300 obvious ones
-    const particleCount = Math.min(Math.max(Math.floor(width / 50), 20), 32)
+    // Sparse: ~24-28 beautiful particles
+    const particleCount = Math.min(Math.max(Math.floor(width / 55), 18), 28)
 
     const createParticle = (initRandom = true): Particle => {
-      // Wind direction: bottom-left → top-right (~-36° from horizontal)
-      // baseAngle in radians: cos gives rightward motion, sin gives upward (negative y)
       const baseAngle = -0.62 + (Math.random() - 0.5) * 0.22
-
       const speed = 0.45 + Math.random() * 0.6
-
-      // Weighted type distribution: more streaks/wisps than plain dots for smoke feel
       const rand = Math.random()
       const type: ParticleType = rand < 0.35 ? 'dot' : rand < 0.70 ? 'streak' : 'wisp'
 
@@ -76,17 +107,13 @@ export default function AnimatedBackground() {
       let startY: number
 
       if (initRandom) {
-        // Scatter across entire canvas at start
         startX = Math.random() * (width + 300) - 150
         startY = Math.random() * (height + 300) - 150
       } else {
-        // Spawn from bottom or left edge so particles flow into view naturally
         if (Math.random() > 0.38) {
-          // Bottom edge
           startX = Math.random() * (width * 0.9) - 60
           startY = height + 20 + Math.random() * 30
         } else {
-          // Left edge
           startX = -30 - Math.random() * 20
           startY = height * 0.25 + Math.random() * (height * 0.75)
         }
@@ -98,18 +125,18 @@ export default function AnimatedBackground() {
         speed,
         angle: baseAngle,
         type,
-        size: type === 'dot'
-          ? 0.9 + Math.random() * 1.3
-          : type === 'streak'
-          ? 0.5 + Math.random() * 0.6
-          : 1.2 + Math.random() * 1.8,
+        size:
+          type === 'dot'
+            ? 0.9 + Math.random() * 1.3
+            : type === 'streak'
+            ? 0.5 + Math.random() * 0.6
+            : 1.2 + Math.random() * 1.8,
         streakLength: 14 + Math.random() * 22,
-        // Very low opacity — smoke is subtle, almost subconscious
-        opacity: type === 'wisp'
-          ? 0.025 + Math.random() * 0.04
-          : 0.03 + Math.random() * 0.055,
+        opacity:
+          type === 'wisp'
+            ? 0.025 + Math.random() * 0.04
+            : 0.03 + Math.random() * 0.055,
         phase: Math.random() * Math.PI * 2,
-        // Gentle sine drift — wind isn't perfectly straight
         waveAmp: 0.12 + Math.random() * 0.22,
         wispRatio: 2.5 + Math.random() * 2.5,
       }
@@ -120,91 +147,69 @@ export default function AnimatedBackground() {
     )
 
     let time = 0
+    let isPaused = false
+
+    const handleVisibilityChange = () => {
+      isPaused = document.hidden
+      if (!isPaused) {
+        cancelAnimationFrame(animationFrameId)
+        animationFrameId = requestAnimationFrame(render)
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
 
     const render = () => {
-      ctx.clearRect(0, 0, width, height)
-      time += 0.010
+      if (isPaused) return
 
-      if (prefersReducedMotion) return
+      ctx.clearRect(0, 0, width, height)
+      time += 0.01
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i]
 
-        // Move diagonally from bottom-left toward top-right
         const vx = Math.cos(p.angle) * p.speed
         const vy = Math.sin(p.angle) * p.speed
 
         p.x += vx
-        // Gentle lateral sine drift for organic feel
         p.y += vy + Math.sin(time * 0.9 + p.phase) * p.waveAmp
 
-        // Recycle when particle exits the top or right edge
         if (p.x > width + 60 || p.y < -60) {
           const fresh = createParticle(false)
           Object.assign(p, fresh)
         }
 
-        ctx.save()
+        ctx.globalAlpha = p.opacity
 
         if (p.type === 'streak') {
-          // Directional streak aligned with wind vector, gradient fade at tail
-          const tailX = p.x - Math.cos(p.angle) * p.streakLength
-          const tailY = p.y - Math.sin(p.angle) * p.streakLength
-
-          const grad = ctx.createLinearGradient(tailX, tailY, p.x, p.y)
-          grad.addColorStop(0, 'rgba(255,255,255,0)')
-          grad.addColorStop(0.6, `rgba(255,255,255,${p.opacity * 0.5})`)
-          grad.addColorStop(1, `rgba(255,255,255,${p.opacity})`)
-
-          ctx.beginPath()
-          ctx.strokeStyle = grad
-          ctx.lineWidth = p.size
-          ctx.lineCap = 'round'
-          ctx.moveTo(tailX, tailY)
-          ctx.lineTo(p.x, p.y)
-          ctx.stroke()
-
-        } else if (p.type === 'wisp') {
-          // Translucent elongated ellipse — smoke wisp
+          ctx.save()
           ctx.translate(p.x, p.y)
           ctx.rotate(p.angle)
-
-          const wispW = p.size * p.wispRatio
-          const wispH = p.size
-
-          const radGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, wispW)
-          radGrad.addColorStop(0, `rgba(255,255,255,${p.opacity})`)
-          radGrad.addColorStop(1, 'rgba(255,255,255,0)')
-
-          ctx.beginPath()
-          ctx.scale(1, wispH / wispW)
-          ctx.arc(0, 0, wispW, 0, Math.PI * 2)
-          ctx.fillStyle = radGrad
-          ctx.fill()
-
+          ctx.drawImage(streakSprite, -p.streakLength, -p.size, p.streakLength, p.size * 2)
+          ctx.restore()
+        } else if (p.type === 'wisp') {
+          ctx.save()
+          ctx.translate(p.x, p.y)
+          ctx.rotate(p.angle)
+          const wispW = p.size * p.wispRatio * 2
+          const wispH = p.size * 2
+          ctx.drawImage(radialSprite, -wispW / 2, -wispH / 2, wispW, wispH)
+          ctx.restore()
         } else {
-          // Soft atmospheric micro-dot with radial gradient (blurred edges)
-          const r = p.size
-          const radGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 1.8)
-          radGrad.addColorStop(0, `rgba(255,255,255,${p.opacity})`)
-          radGrad.addColorStop(1, 'rgba(255,255,255,0)')
-
-          ctx.beginPath()
-          ctx.arc(p.x, p.y, r * 1.8, 0, Math.PI * 2)
-          ctx.fillStyle = radGrad
-          ctx.fill()
+          const d = p.size * 3.6
+          ctx.drawImage(radialSprite, p.x - d / 2, p.y - d / 2, d, d)
         }
-
-        ctx.restore()
       }
 
+      ctx.globalAlpha = 1
       animationFrameId = requestAnimationFrame(render)
     }
 
     render()
 
     return () => {
+      clearTimeout(resizeTimeout)
       window.removeEventListener('resize', handleResize)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
       cancelAnimationFrame(animationFrameId)
     }
   }, [])

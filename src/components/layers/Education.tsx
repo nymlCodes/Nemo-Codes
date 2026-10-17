@@ -7,7 +7,7 @@ import { FaLaptopCode } from 'react-icons/fa'
 import { SiNextdotjs, SiExpress, SiNodedotjs, SiTailwindcss, SiJavascript, SiReact } from 'react-icons/si'
 import { EducationItem, CourseData, CertificateItem, GoalItemData } from '../../types'
 
-const vpRepeat = { once: false, amount: 0.15 }
+const vpOnce = { once: true, amount: 0.1 }
 
 const fadeUp: Variants = {
   hidden: {
@@ -123,7 +123,7 @@ export default function Education() {
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
-        viewport={vpRepeat}
+        viewport={vpOnce}
       >
         <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4">
           <p
@@ -162,7 +162,7 @@ export default function Education() {
         variants={staggerCards}
         initial="hidden"
         whileInView="visible"
-        viewport={vpRepeat}
+        viewport={vpOnce}
       >
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.08] pb-3 sm:pb-4">
           <span
@@ -234,7 +234,7 @@ export default function Education() {
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
-        viewport={vpRepeat}
+        viewport={vpOnce}
       >
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.08] pb-3 sm:pb-4">
           <span
@@ -296,7 +296,7 @@ export default function Education() {
         variants={staggerCards}
         initial="hidden"
         whileInView="visible"
-        viewport={vpRepeat}
+        viewport={vpOnce}
       >
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.08] pb-3 sm:pb-4">
           <span
@@ -365,7 +365,7 @@ export default function Education() {
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
-        viewport={vpRepeat}
+        viewport={vpOnce}
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span

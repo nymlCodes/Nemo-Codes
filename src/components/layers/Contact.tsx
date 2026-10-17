@@ -5,7 +5,7 @@ import { motion, type Variants } from 'motion/react'
 import { FaLinkedin, FaPhoneAlt, FaWhatsapp, FaEnvelope, FaMapMarkerAlt, FaCheckCircle } from 'react-icons/fa'
 import { FiArrowUpRight, FiSend } from 'react-icons/fi'
 
-const vpRepeat = { once: false, amount: 0.15 }
+const vpOnce = { once: true, amount: 0.1 }
 
 const fadeUp: Variants = {
   hidden: {
@@ -129,7 +129,7 @@ export default function Contact() {
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
-        viewport={vpRepeat}
+        viewport={vpOnce}
       >
         <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4">
           <p
@@ -170,7 +170,7 @@ export default function Contact() {
           variants={fadeLeft}
           initial="hidden"
           whileInView="visible"
-          viewport={vpRepeat}
+          viewport={vpOnce}
         >
           <div className="space-y-3 sm:space-y-4">
             <span
@@ -242,7 +242,7 @@ export default function Contact() {
           variants={fadeRight}
           initial="hidden"
           whileInView="visible"
-          viewport={vpRepeat}
+          viewport={vpOnce}
         >
           <div className="p-4 xs:p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/10 bg-[#0a0a0e] shadow-2xl space-y-5 sm:space-y-8 w-full">
             <div className="space-y-1.5 sm:space-y-2">

@@ -158,7 +158,7 @@ export default function RouteSwitch({ introStage = 'completed' }: RouteSwitchPro
         >
           {/* Inner Drawer Panel */}
           <div
-            className={`flex items-center transition-all duration-500 ease-out transform ${
+            className={`flex items-center transition-[transform,opacity] duration-500 ease-out transform ${
               isExpanded
                 ? 'translate-x-2 sm:translate-x-4 opacity-100'
                 : '-translate-x-[calc(100%-14px)] opacity-95'
@@ -166,7 +166,7 @@ export default function RouteSwitch({ introStage = 'completed' }: RouteSwitchPro
           >
             {/* Main Glass Dock */}
             <div
-              className={`relative bg-[#0c0c12]/95 backdrop-blur-2xl border rounded-r-2xl p-3 flex flex-col items-center gap-2 max-h-[85vh] overflow-y-auto min-w-[170px] transition-all duration-500 shadow-2xl ${
+              className={`relative bg-[#0c0c12]/95 backdrop-blur-2xl border rounded-r-2xl p-3 flex flex-col items-center gap-2 max-h-[85vh] overflow-y-auto min-w-[170px] transition-[border-color,box-shadow,transform] duration-500 shadow-2xl ${
                 introStage === 'focus'
                   ? 'border-white/40 shadow-[0_0_65px_rgba(255,255,255,0.25)] scale-[1.03]'
                   : 'border-white/15 hover:border-white/25 shadow-[0_0_40px_rgba(0,0,0,0.8)]'

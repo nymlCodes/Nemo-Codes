@@ -6,7 +6,7 @@ import { VscVscode } from 'react-icons/vsc'
 import { SiGithub, SiFigma, SiNpm, SiVite, SiReactrouter, SiVercel, SiNextdotjs, SiReact, SiExpress, SiNodedotjs, SiMongodb, SiTypescript, SiTailwindcss, SiJavascript, SiHtml5, SiCss, SiPostgresql, SiPrisma } from 'react-icons/si'
 import { MdOutlineDeveloperMode } from 'react-icons/md'
 
-const vpRepeat = { once: false, amount: 0.15 }
+const vpOnce = { once: true, amount: 0.1 }
 
 const fadeUp: Variants = {
   hidden: {
@@ -113,7 +113,7 @@ export default function Skills() {
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
-        viewport={vpRepeat}
+        viewport={vpOnce}
       >
         <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4">
           <p
@@ -152,7 +152,7 @@ export default function Skills() {
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
-        viewport={vpRepeat}
+        viewport={vpOnce}
       >
         {/* Row 1 */}
         <div className="flex whitespace-nowrap overflow-hidden">
@@ -239,7 +239,7 @@ export default function Skills() {
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
-            viewport={vpRepeat}
+            viewport={vpOnce}
           >
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.08] pb-3 sm:pb-4">
               <span
@@ -261,7 +261,7 @@ export default function Skills() {
               variants={staggerList}
               initial="hidden"
               whileInView="visible"
-              viewport={vpRepeat}
+              viewport={vpOnce}
             >
               {group.items.map((item) => {
                 const Icon = item.icon
@@ -309,10 +309,14 @@ export default function Skills() {
         .marquee-row-1 {
           display: flex;
           animation: marqueeScroll1 30s linear infinite;
+          will-change: transform;
+          contain: content;
         }
         .marquee-row-2 {
           display: flex;
           animation: marqueeScroll2 35s linear infinite;
+          will-change: transform;
+          contain: content;
         }
         @media (prefers-reduced-motion: reduce) {
           .marquee-row-1, .marquee-row-2 {
