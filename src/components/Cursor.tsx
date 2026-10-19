@@ -4,324 +4,366 @@ import React, { useEffect, useRef, useState } from 'react'
 
 type CursorState = 'default' | 'link' | 'card' | 'text'
 
+const TEXT_SELECTOR =
+  'input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]), textarea, [contenteditable="true"]'
+const CARD_SELECTOR =
+  '[data-cursor="project-card"], .group\\/img, [href^="/projects/"], [href^="/details/"], .project-card, .editorial-card'
+const LINK_SELECTOR =
+  'a, button, [role="button"], [role="link"], [role="tab"], select, summary, label[for], .btn-editorial-primary, .btn-editorial-ghost, [data-cursor="interactive"]'
+
+const RING_ID = 'nemo-cursor-ring-path'
+const RING_RADIUS = 38
+const RING_LENGTH = Math.round(2 * Math.PI * RING_RADIUS) - 2
+const RING_CHARS = 38
+const TRAIL_COUNT = 9
+const GLYPHS = '01<>/{}[]#$%&*+=?;:'
+const DEFAULT_RING_UNIT = 'NEYAMUL ISLAM • MERN DEVELOPER • '
+
+const buildRing = (unit: string) => unit.repeat(Math.max(1, Math.round(RING_CHARS / unit.length)))
+const DEFAULT_RING = buildRing(DEFAULT_RING_UNIT)
+
+function getLinkLabel(el: HTMLElement): string {
+  const custom = el.getAttribute('data-cursor-label')
+  if (custom) return custom.toUpperCase()
+
+  if (el instanceof HTMLAnchorElement) {
+    if (el.hasAttribute('download')) return 'SAVE ↓'
+    const href = el.getAttribute('href') || ''
+    if (href.startsWith('mailto:')) return 'MAIL ↗'
+    if (href.startsWith('#')) return 'JUMP ↓'
+    if (/^https?:/i.test(href) && !href.startsWith(window.location.origin)) return 'OPEN ↗'
+    return 'GO →'
+  }
+  return 'CLICK'
+}
+
+function checkTarget(target: HTMLElement | null): { state: CursorState; label: string } {
+  if (!target) return { state: 'default', label: '' }
+
+  if (target.closest?.(TEXT_SELECTOR)) return { state: 'text', label: '' }
+  if (target.closest?.(CARD_SELECTOR)) return { state: 'card', label: '' }
+
+  const link = target.closest?.(LINK_SELECTOR) as HTMLElement | null
+  if (link) return { state: 'link', label: getLinkLabel(link) }
+
+  try {
+    if (window.getComputedStyle(target).cursor === 'pointer') return { state: 'link', label: 'CLICK' }
+  } catch {
+    // ignore
+  }
+  return { state: 'default', label: '' }
+}
+
+const ringFor = (state: CursorState, label: string) => {
+  if (state === 'card') return buildRing('VIEW PROJECT • ')
+  if (state === 'link') return buildRing(`${label} • `)
+  return DEFAULT_RING
+}
+
 /**
- * NEMO Shard Signature Cursor
- *
- * An angular, precision-cut asymmetric digital shard paired with a minimal broken-orbit motif.
- * Designed bespoke for the NEMO architectural editorial design system.
- *
- * Features:
- * - Asymmetric Shard Core: Dual-facet geometric crystal (#ffffff stark white + #dcdce4 architectural silver).
- * - Broken Orbit Motif: Segmented radar arc with technical alignment notches and kinetic secondary lag.
- * - Project Card Targeting Frame: Transforms into an architectural viewfinder frame with a monospace 'VIEW' label.
- * - Link / Button Aperture: Subtle rotation and expansion on interactive links and buttons.
- * - Geometric Click Compression: Snappy geometric pulse/contraction on mousedown.
- * - Text Usability: Fades out over inputs/textareas to preserve native I-beam cursor and caret selection.
- * - Hardware Acceleration & Idle Sleep: Zero React re-renders on movement; rAF sleeps completely when idle.
- * - Device & Motion Friendly: Automatically disabled on touch screens and prefers-reduced-motion.
+ * COMET + ORBITING NAMEPLATE CURSOR
+ * - Liquid core that stretches/squashes along its movement direction
+ * - 9-dot chain tail that follows like a snake
+ * - Spinning text ring (speed scales with mouse velocity) that scramble-decodes
+ *   into a new label on hover
+ * - Link: core becomes an inverting lens | Card: core becomes a VIEW disc
+ * - Click: tick-mark burst
  */
 export default function CustomCursor() {
-  const shardRef = useRef<HTMLDivElement | null>(null)
-  const orbitRef = useRef<HTMLDivElement | null>(null)
-  const frameRef = useRef<HTMLDivElement | null>(null)
+  const rootRef = useRef<HTMLDivElement | null>(null)
+  const ringRef = useRef<HTMLDivElement | null>(null)
+  const spinRef = useRef<HTMLDivElement | null>(null)
+  const ringTextRef = useRef<SVGTextPathElement | null>(null)
+  const trailGroupRef = useRef<HTMLDivElement | null>(null)
+  const trailRefs = useRef<(HTMLDivElement | null)[]>([])
+  const coreRef = useRef<HTMLDivElement | null>(null)
+  const discRef = useRef<HTMLDivElement | null>(null)
   const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {
-    const finePointerQuery = window.matchMedia('(pointer: fine)')
-    const hoverQuery = window.matchMedia('(hover: hover)')
-    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-
-    const checkSupport = () => {
-      const isFinePointer = finePointerQuery.matches
-      const canHover = hoverQuery.matches
-      const prefersReducedMotion = reducedMotionQuery.matches
-
-      setEnabled(isFinePointer && canHover && !prefersReducedMotion)
-    }
-
-    checkSupport()
-
-    finePointerQuery.addEventListener('change', checkSupport)
-    hoverQuery.addEventListener('change', checkSupport)
-    reducedMotionQuery.addEventListener('change', checkSupport)
-
-    return () => {
-      finePointerQuery.removeEventListener('change', checkSupport)
-      hoverQuery.removeEventListener('change', checkSupport)
-      reducedMotionQuery.removeEventListener('change', checkSupport)
-    }
+    const queries = [
+      window.matchMedia('(pointer: fine)'),
+      window.matchMedia('(hover: hover)'),
+      window.matchMedia('(prefers-reduced-motion: reduce)'),
+    ]
+    const check = () => setEnabled(queries[0].matches && queries[1].matches && !queries[2].matches)
+    check()
+    queries.forEach((q) => q.addEventListener('change', check))
+    return () => queries.forEach((q) => q.removeEventListener('change', check))
   }, [])
 
   useEffect(() => {
     if (!enabled) return
 
-    const shard = shardRef.current
-    const orbit = orbitRef.current
-    const frame = frameRef.current
-    if (!shard || !orbit || !frame) return
+    const root = rootRef.current
+    const ring = ringRef.current
+    const spinEl = spinRef.current
+    const ringText = ringTextRef.current
+    const trailGroup = trailGroupRef.current
+    const core = coreRef.current
+    const disc = discRef.current
+    const trail = trailRefs.current.filter((el): el is HTMLDivElement => el !== null)
+    if (!root || !ring || !spinEl || !ringText || !trailGroup || !core || !disc || trail.length === 0) return
 
     let mouseX = window.innerWidth / 2
     let mouseY = window.innerHeight / 2
-    let shardX = mouseX
-    let shardY = mouseY
-    let orbitX = mouseX
-    let orbitY = mouseY
+    let coreX = mouseX
+    let coreY = mouseY
+    let ringX = mouseX
+    let ringY = mouseY
+    const trailPos = trail.map(() => ({ x: mouseX, y: mouseY }))
 
-    let lastMouseX = mouseX
-    let lastMouseY = mouseY
-    let velocityX = 0
-    let velocityY = 0
-
-    let currentShardScale = 1
-    let currentOrbitScale = 1
-    let currentOrbitAngle = 0
-    let currentFrameScale = 0.8
+    let coreScale = 1
+    let ringScale = 1
+    let discScale = 0
+    let spinRate = 1
 
     let activeState: CursorState = 'default'
+    let linkLabel = ''
+    let ringTarget = DEFAULT_RING
+    let scrambleTimer: number | undefined
     let isMouseDown = false
     let isVisible = false
     let hasMoved = false
     let isRunning = false
-    let animationFrameId: number
+    let rafId = 0
 
-    const startAnimationLoop = () => {
+    // Constant spin runs on the compositor; JS only changes its playbackRate
+    const spin = spinEl.animate(
+      [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
+      { duration: 16000, iterations: Infinity }
+    )
+
+    const animate = () => {
+      let tCore = 1
+      let tRing = 1
+      let tDisc = 0
+      let tRate = 1
+
+      if (activeState === 'card') {
+        tCore = 0
+        tRing = isMouseDown ? 1.4 : 1.6
+        tDisc = isMouseDown ? 0.9 : 1
+        tRate = 1.6
+      } else if (activeState === 'link') {
+        tCore = isMouseDown ? 1.6 : 3.2
+        tRing = isMouseDown ? 1 : 1.2
+        tRate = 2.4
+      } else {
+        tCore = isMouseDown ? 0.6 : 1
+        tRing = isMouseDown ? 0.85 : 1
+      }
+
+      // Liquid core: stretch along the lag vector between pointer and core
+      const dCoreX = mouseX - coreX
+      const dCoreY = mouseY - coreY
+      const lag = Math.hypot(dCoreX, dCoreY)
+      const stretch = 1 + Math.min(lag * 0.05, 1.4)
+      const squash = 1 / Math.sqrt(stretch)
+      const angle = Math.atan2(dCoreY, dCoreX)
+      coreX += dCoreX * 0.38
+      coreY += dCoreY * 0.38
+
+      // Chain tail
+      let trailMoving = false
+      let prevX = coreX
+      let prevY = coreY
+      for (let i = 0; i < trail.length; i++) {
+        const p = trailPos[i]
+        const dx = prevX - p.x
+        const dy = prevY - p.y
+        p.x += dx * 0.34
+        p.y += dy * 0.34
+        if (Math.abs(dx) > 0.08 || Math.abs(dy) > 0.08) trailMoving = true
+        trail[i].style.transform = `translate3d(${p.x.toFixed(2)}px, ${p.y.toFixed(2)}px, 0) translate(-50%, -50%)`
+        prevX = p.x
+        prevY = p.y
+      }
+
+      // Ring floats with a softer follow
+      const dRingX = mouseX - ringX
+      const dRingY = mouseY - ringY
+      ringX += dRingX * 0.12
+      ringY += dRingY * 0.12
+
+      const dCoreS = tCore - coreScale
+      const dRingS = tRing - ringScale
+      const dDiscS = tDisc - discScale
+      const rateTarget = tRate + Math.min(lag * 0.06, 3)
+      const dRate = rateTarget - spinRate
+
+      coreScale += dCoreS * 0.25
+      ringScale += dRingS * 0.18
+      discScale += dDiscS * 0.22
+      spinRate += dRate * 0.08
+      spin.playbackRate = spinRate
+
+      core.style.transform = `translate3d(${coreX.toFixed(2)}px, ${coreY.toFixed(2)}px, 0) translate(-50%, -50%) rotate(${angle.toFixed(3)}rad) scale(${(coreScale * stretch).toFixed(3)}, ${(coreScale * squash).toFixed(3)})`
+      ring.style.transform = `translate3d(${ringX.toFixed(2)}px, ${ringY.toFixed(2)}px, 0) translate(-50%, -50%) scale(${ringScale.toFixed(3)})`
+      disc.style.transform = `translate3d(${coreX.toFixed(2)}px, ${coreY.toFixed(2)}px, 0) translate(-50%, -50%) scale(${discScale.toFixed(3)})`
+
+      const settled =
+        !trailMoving &&
+        lag < 0.08 &&
+        Math.abs(dRingX) < 0.08 &&
+        Math.abs(dRingY) < 0.08 &&
+        Math.abs(dCoreS) < 0.003 &&
+        Math.abs(dRingS) < 0.003 &&
+        Math.abs(dDiscS) < 0.003 &&
+        Math.abs(dRate) < 0.01
+
+      if (settled) {
+        isRunning = false
+      } else {
+        rafId = requestAnimationFrame(animate)
+      }
+    }
+
+    const start = () => {
       if (!isRunning) {
         isRunning = true
-        animationFrameId = requestAnimationFrame(animate)
+        rafId = requestAnimationFrame(animate)
       }
     }
 
-    const applyCursorVisibility = () => {
-      if (!shard || !orbit || !frame) return
+    // Scramble-decode the ring text into a new label
+    const setRingText = (target: string) => {
+      if (target === ringTarget) return
+      ringTarget = target
+      if (scrambleTimer) window.clearInterval(scrambleTimer)
 
-      if (activeState === 'text') {
-        // Over text inputs/textareas: hide custom cursor elements so native I-beam is visible
-        shard.style.opacity = '0'
-        orbit.style.opacity = '0'
-        frame.style.opacity = '0'
-      } else if (isVisible && hasMoved) {
-        if (activeState === 'card') {
-          // Hovering a project card: show geometric targeting frame with VIEW label
-          shard.style.opacity = '0'
-          orbit.style.opacity = '0'
-          frame.style.opacity = '1'
-        } else {
-          // Default or link state: show shard and broken orbit
-          shard.style.opacity = '1'
-          orbit.style.opacity = '1'
-          frame.style.opacity = '0'
+      let frame = 0
+      const total = 10
+      scrambleTimer = window.setInterval(() => {
+        frame++
+        const reveal = Math.floor((frame / total) * target.length)
+        let out = ''
+        for (let i = 0; i < target.length; i++) {
+          const ch = target[i]
+          out += i < reveal || ch === ' ' || ch === '•' ? ch : GLYPHS[Math.floor(Math.random() * GLYPHS.length)]
         }
-      } else {
-        shard.style.opacity = '0'
-        orbit.style.opacity = '0'
-        frame.style.opacity = '0'
+        ringText.textContent = out
+        if (frame >= total) {
+          window.clearInterval(scrambleTimer)
+          ringText.textContent = target
+        }
+      }, 32)
+    }
+
+    const applyVisibility = () => {
+      const live = isVisible && hasMoved
+      const hidden = !live || activeState === 'text'
+      const isCard = activeState === 'card'
+      const isLink = activeState === 'link'
+
+      core.style.opacity = hidden ? '0' : '1'
+      ring.style.opacity = hidden ? '0' : '1'
+      trailGroup.style.opacity = hidden || isCard ? '0' : isLink ? '0.35' : '1'
+      disc.style.opacity = hidden || !isCard ? '0' : '1'
+    }
+
+    const updateState = (target: HTMLElement | null) => {
+      const next = checkTarget(target)
+      if (next.state !== activeState || next.label !== linkLabel) {
+        activeState = next.state
+        linkLabel = next.label
+        setRingText(ringFor(activeState, linkLabel))
+        applyVisibility()
+        start()
       }
     }
 
-    function onMouseMove(e: MouseEvent) {
+    const burst = (x: number, y: number) => {
+      const count = 10
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('span')
+        p.style.cssText =
+          'position:absolute;top:0;left:0;width:8px;height:1px;background:#fff;will-change:transform,opacity;'
+        root.appendChild(p)
+
+        const a = (i / count) * Math.PI * 2 + Math.random() * 0.4
+        const dist = 28 + Math.random() * 28
+        const rot = `${((a * 180) / Math.PI).toFixed(1)}deg`
+        const at = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) rotate(${rot})`
+
+        const anim = p.animate(
+          [
+            { transform: `${at} translateX(8px) scaleX(1)`, opacity: 1 },
+            { transform: `${at} translateX(${dist.toFixed(1)}px) scaleX(0.2)`, opacity: 0 },
+          ],
+          { duration: 480 + Math.random() * 240, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' }
+        )
+        anim.onfinish = () => p.remove()
+      }
+    }
+
+    const onMouseMove = (e: MouseEvent) => {
       mouseX = e.clientX
       mouseY = e.clientY
 
       if (!hasMoved) {
         hasMoved = true
-        shardX = mouseX
-        shardY = mouseY
-        orbitX = mouseX
-        orbitY = mouseY
-        lastMouseX = mouseX
-        lastMouseY = mouseY
+        coreX = mouseX
+        coreY = mouseY
+        ringX = mouseX
+        ringY = mouseY
+        trailPos.forEach((p) => {
+          p.x = mouseX
+          p.y = mouseY
+        })
         document.body.classList.add('custom-cursor-active')
       }
+      isVisible = true
 
-      if (!isVisible) {
-        isVisible = true
-      }
-
-      applyCursorVisibility()
-      startAnimationLoop()
+      applyVisibility()
+      start()
     }
 
-    function checkTargetState(target: HTMLElement | null): CursorState {
-      if (!target) return 'default'
-
-      // 1. Text input / textarea
-      const isText = Boolean(
-        target.closest?.(
-          'input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]), textarea, [contenteditable="true"]'
-        )
-      )
-      if (isText) return 'text'
-
-      // 2. Project Card (Targeting Frame with VIEW label)
-      const isProjectCard = Boolean(
-        target.closest?.(
-          '[data-cursor="project-card"], .group\\/img, [href^="/projects/"], [href^="/details/"], .project-card, .editorial-card'
-        )
-      )
-      if (isProjectCard) return 'card'
-
-      // 3. Links & Buttons
-      const isLinkOrButton = Boolean(
-        target.closest?.(
-          'a, button, [role="button"], [role="link"], [role="tab"], select, summary, label[for], .btn-editorial-primary, .btn-editorial-ghost, [data-cursor="interactive"]'
-        )
-      )
-      if (isLinkOrButton) return 'link'
-
-      // Fallback check: computed style cursor
-      try {
-        const computed = window.getComputedStyle(target).cursor
-        if (computed === 'pointer') return 'link'
-      } catch {
-        // ignore
-      }
-
-      return 'default'
+    const onMouseOver = (e: MouseEvent) => {
+      updateState(e.target as HTMLElement | null)
     }
 
-    function onMouseOver(e: MouseEvent) {
-      const target = e.target as HTMLElement | null
-      const nextState = checkTargetState(target)
-
-      if (nextState !== activeState) {
-        activeState = nextState
-        applyCursorVisibility()
-        startAnimationLoop()
-      }
-    }
-
-    function onMouseDown() {
+    const onMouseDown = () => {
       isMouseDown = true
-      startAnimationLoop()
+      start()
     }
 
-    function onMouseUp() {
+    const onMouseUp = () => {
       isMouseDown = false
-      startAnimationLoop()
+      start()
     }
 
-    function onMouseLeave() {
+    const onClick = (e: MouseEvent) => {
+      if (activeState === 'text') return
+      burst(e.clientX, e.clientY)
+    }
+
+    const onLeave = () => {
       isVisible = false
-      applyCursorVisibility()
+      applyVisibility()
     }
 
-    function onMouseEnter() {
+    const onEnter = () => {
       isVisible = true
-      applyCursorVisibility()
-      startAnimationLoop()
+      applyVisibility()
+      start()
     }
 
-    function onWindowBlur() {
-      isVisible = false
-      applyCursorVisibility()
-    }
-
-    function onWindowFocus() {
-      isVisible = true
-      applyCursorVisibility()
-      startAnimationLoop()
-    }
-
-    function onScroll() {
-      startAnimationLoop()
+    const onScroll = () => {
+      updateState(document.elementFromPoint(mouseX, mouseY) as HTMLElement | null)
+      start()
     }
 
     window.addEventListener('mousemove', onMouseMove, { passive: true })
     document.addEventListener('mouseover', onMouseOver, { passive: true })
     window.addEventListener('mousedown', onMouseDown, { passive: true })
     window.addEventListener('mouseup', onMouseUp, { passive: true })
-    document.documentElement.addEventListener('mouseleave', onMouseLeave, { passive: true })
-    document.documentElement.addEventListener('mouseenter', onMouseEnter, { passive: true })
-    window.addEventListener('blur', onWindowBlur, { passive: true })
-    window.addEventListener('focus', onWindowFocus, { passive: true })
+    window.addEventListener('click', onClick, { passive: true })
+    document.documentElement.addEventListener('mouseleave', onLeave, { passive: true })
+    document.documentElement.addEventListener('mouseenter', onEnter, { passive: true })
+    window.addEventListener('blur', onLeave, { passive: true })
+    window.addEventListener('focus', onEnter, { passive: true })
     window.addEventListener('scroll', onScroll, { passive: true })
-
-    function animate() {
-      // Determine target geometry scales based on state
-      let targetShardScale = 1
-      let targetOrbitScale = 1
-      let targetOrbitAngle = 0
-      let targetFrameScale = 1
-
-      if (activeState === 'card') {
-        targetFrameScale = isMouseDown ? 0.9 : 1
-        targetShardScale = 0.5
-        targetOrbitScale = 0.5
-      } else if (activeState === 'link') {
-        targetShardScale = isMouseDown ? 0.75 : 1.15
-        targetOrbitScale = isMouseDown ? 0.7 : 1.35
-        targetOrbitAngle = 25
-      } else {
-        // Default
-        targetShardScale = isMouseDown ? 0.72 : 1
-        targetOrbitScale = isMouseDown ? 0.7 : 1
-        targetOrbitAngle = 0
-      }
-
-      // Calculate instantaneous movement velocity for secondary broken-orbit tilt
-      velocityX = (mouseX - lastMouseX) * 0.3
-      velocityY = (mouseY - lastMouseY) * 0.3
-      lastMouseX = mouseX
-      lastMouseY = mouseY
-
-      const speed = Math.sqrt(velocityX * velocityX + velocityY * velocityY)
-      const dynamicTilt = Math.min(Math.max(velocityX * 1.5, -20), 20)
-      targetOrbitAngle += dynamicTilt
-
-      // Shard tracks pointer responsively with high precision
-      const dShardX = mouseX - shardX
-      const dShardY = mouseY - shardY
-      shardX += dShardX * 0.55
-      shardY += dShardY * 0.55
-
-      // Broken orbit tracks with subtle secondary lag
-      const dOrbitX = mouseX - orbitX
-      const dOrbitY = mouseY - orbitY
-      orbitX += dOrbitX * 0.16
-      orbitY += dOrbitY * 0.16
-
-      // Scale & rotation smoothing
-      const dShardScale = targetShardScale - currentShardScale
-      const dOrbitScale = targetOrbitScale - currentOrbitScale
-      const dOrbitAngle = targetOrbitAngle - currentOrbitAngle
-      const dFrameScale = targetFrameScale - currentFrameScale
-
-      currentShardScale += dShardScale * 0.25
-      currentOrbitScale += dOrbitScale * 0.2
-      currentOrbitAngle += dOrbitAngle * 0.15
-      currentFrameScale += dFrameScale * 0.22
-
-      // Hardware-accelerated transforms
-      if (shard) {
-        shard.style.transform = `translate3d(${shardX.toFixed(2)}px, ${shardY.toFixed(2)}px, 0) translate(-50%, -50%) scale(${currentShardScale.toFixed(3)})`
-      }
-
-      if (orbit) {
-        orbit.style.transform = `translate3d(${orbitX.toFixed(2)}px, ${orbitY.toFixed(2)}px, 0) translate(-50%, -50%) rotate(${currentOrbitAngle.toFixed(1)}deg) scale(${currentOrbitScale.toFixed(3)})`
-      }
-
-      if (frame) {
-        frame.style.transform = `translate3d(${shardX.toFixed(2)}px, ${shardY.toFixed(2)}px, 0) translate(-50%, -50%) scale(${currentFrameScale.toFixed(3)})`
-      }
-
-      // Idle check: cleanly stop rAF loop when motion has settled to save CPU
-      const isSettled =
-        Math.abs(dShardX) < 0.08 &&
-        Math.abs(dShardY) < 0.08 &&
-        Math.abs(dOrbitX) < 0.08 &&
-        Math.abs(dOrbitY) < 0.08 &&
-        Math.abs(dShardScale) < 0.003 &&
-        Math.abs(dOrbitScale) < 0.003 &&
-        Math.abs(dOrbitAngle) < 0.05 &&
-        Math.abs(dFrameScale) < 0.003 &&
-        speed < 0.05
-
-      if (isSettled) {
-        isRunning = false
-      } else {
-        animationFrameId = requestAnimationFrame(animate)
-      }
-    }
 
     return () => {
       document.body.classList.remove('custom-cursor-active')
@@ -330,158 +372,600 @@ export default function CustomCursor() {
       document.removeEventListener('mouseover', onMouseOver)
       window.removeEventListener('mousedown', onMouseDown)
       window.removeEventListener('mouseup', onMouseUp)
-      document.documentElement.removeEventListener('mouseleave', onMouseLeave)
-      document.documentElement.removeEventListener('mouseenter', onMouseEnter)
-      window.removeEventListener('blur', onWindowBlur)
-      window.removeEventListener('focus', onWindowFocus)
+      window.removeEventListener('click', onClick)
+      document.documentElement.removeEventListener('mouseleave', onLeave)
+      document.documentElement.removeEventListener('mouseenter', onEnter)
+      window.removeEventListener('blur', onLeave)
+      window.removeEventListener('focus', onEnter)
       window.removeEventListener('scroll', onScroll)
-      cancelAnimationFrame(animationFrameId)
+      cancelAnimationFrame(rafId)
+      if (scrambleTimer) window.clearInterval(scrambleTimer)
+      spin.cancel()
     }
   }, [enabled])
 
   if (!enabled) return null
 
+  const base = 'absolute top-0 left-0 will-change-transform select-none'
+  const offscreen = 'translate3d(-100px, -100px, 0) translate(-50%, -50%)'
+  const mono = { fontFamily: "'Space Mono', monospace" }
+
   return (
-    <>
-      {/* 1. Minimal Broken Orbit Element */}
+    <div
+      ref={rootRef}
+      aria-hidden="true"
+      className="pointer-events-none fixed inset-0 z-[99999] mix-blend-difference"
+    >
+      {/* Spinning text ring */}
       <div
-        ref={orbitRef}
-        aria-hidden="true"
-        className="pointer-events-none fixed top-0 left-0 z-[99998] will-change-transform select-none"
-        style={{
-          opacity: 0,
-          transform: 'translate3d(-100px, -100px, 0) translate(-50%, -50%)',
-          transition: 'opacity 0.18s ease',
-        }}
+        ref={ringRef}
+        className={base}
+        style={{ opacity: 0, transform: offscreen, transition: 'opacity 0.25s ease' }}
       >
-        <svg
-          width="38"
-          height="38"
-          viewBox="0 0 38 38"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* Segmented broken orbit arc */}
-          <circle
-            cx="19"
-            cy="19"
-            r="14"
-            stroke="rgba(255, 255, 255, 0.38)"
-            strokeWidth="1"
-            strokeDasharray="24 14 6 18"
-            strokeLinecap="round"
-          />
-          {/* Top precision alignment notch */}
-          <line
-            x1="19"
-            y1="2"
-            x2="19"
-            y2="5"
-            stroke="rgba(255, 255, 255, 0.6)"
-            strokeWidth="1"
-          />
-          {/* Bottom micro tick */}
-          <line
-            x1="19"
-            y1="33"
-            x2="19"
-            y2="36"
-            stroke="rgba(255, 255, 255, 0.4)"
-            strokeWidth="1"
-          />
-        </svg>
-      </div>
-
-      {/* 2. Asymmetric NEMO Shard Core */}
-      <div
-        ref={shardRef}
-        aria-hidden="true"
-        className="pointer-events-none fixed top-0 left-0 z-[99999] will-change-transform select-none"
-        style={{
-          opacity: 0,
-          transform: 'translate3d(-100px, -100px, 0) translate(-50%, -50%)',
-          transition: 'opacity 0.18s ease',
-        }}
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="overflow-visible"
-        >
-          {/* Left Facet: Stark White (#ffffff) */}
-          <polygon
-            points="12,2 4,18 13,12"
-            fill="#ffffff"
-          />
-          {/* Right Facet: Subtle Architectural Silver (#dcdce4) */}
-          <polygon
-            points="12,2 13,12 20,13"
-            fill="#dcdce4"
-          />
-          {/* Precision Seam Line between facets */}
-          <line
-            x1="12"
-            y1="2"
-            x2="13"
-            y2="12"
-            stroke="#050507"
-            strokeWidth="0.8"
-            strokeOpacity="0.4"
-          />
-          {/* Crisp Outer Perimeter Contour */}
-          <polygon
-            points="12,2 20,13 13,12 4,18"
-            fill="none"
-            stroke="#ffffff"
-            strokeWidth="0.8"
-            strokeLinejoin="miter"
-            strokeMiterlimit="4"
-          />
-        </svg>
-      </div>
-
-      {/* 3. Architectural Geometric Targeting Frame with VIEW Label */}
-      <div
-        ref={frameRef}
-        aria-hidden="true"
-        className="pointer-events-none fixed top-0 left-0 z-[99999] will-change-transform select-none flex flex-col items-center justify-center"
-        style={{
-          width: '64px',
-          height: '34px',
-          opacity: 0,
-          transform: 'translate3d(-100px, -100px, 0) translate(-50%, -50%) scale(0.8)',
-          transition: 'opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-        }}
-      >
-        {/* Four Technical Corner Brackets on Subtle Editorial Glass */}
-        <div className="absolute inset-0 bg-[#0c0c10]/85 border border-white/20 rounded-md backdrop-blur-[2px]">
-          {/* Top-Left Bracket */}
-          <span className="absolute -top-[1px] -left-[1px] w-2 h-2 border-t border-l border-white" />
-          {/* Top-Right Bracket */}
-          <span className="absolute -top-[1px] -right-[1px] w-2 h-2 border-t border-r border-white" />
-          {/* Bottom-Left Bracket */}
-          <span className="absolute -bottom-[1px] -left-[1px] w-2 h-2 border-b border-l border-white" />
-          {/* Bottom-Right Bracket */}
-          <span className="absolute -bottom-[1px] -right-[1px] w-2 h-2 border-b border-r border-white" />
-        </div>
-
-        {/* Micro Shard Pip + Monospace VIEW Tag */}
-        <div className="relative flex items-center gap-1.5 z-10">
-          <svg width="6" height="8" viewBox="0 0 6 8" fill="none" className="shrink-0">
-            <polygon points="3,0 0,6 3,4" fill="#ffffff" />
-            <polygon points="3,0 3,4 6,5" fill="#dcdce4" />
+        <div ref={spinRef}>
+          <svg width="92" height="92" viewBox="0 0 100 100" fill="none" className="block">
+            <defs>
+              <path
+                id={RING_ID}
+                d={`M 50,50 m -${RING_RADIUS},0 a ${RING_RADIUS},${RING_RADIUS} 0 1,1 ${RING_RADIUS * 2},0 a ${RING_RADIUS},${RING_RADIUS} 0 1,1 -${RING_RADIUS * 2},0`}
+              />
+            </defs>
+            <text fill="white" fillOpacity="0.85" fontSize="9" fontWeight="700" style={mono}>
+              <textPath
+                ref={ringTextRef}
+                href={`#${RING_ID}`}
+                startOffset="0"
+                textLength={RING_LENGTH}
+                lengthAdjust="spacing"
+              >
+                {DEFAULT_RING}
+              </textPath>
+            </text>
           </svg>
-          <span
-            className="text-[9px] font-bold tracking-[0.22em] text-white uppercase"
-            style={{ fontFamily: "'Space Mono', monospace" }}
-          >
-            VIEW
-          </span>
         </div>
       </div>
-    </>
+
+      {/* Chain tail */}
+      <div
+        ref={trailGroupRef}
+        className="absolute inset-0"
+        style={{ opacity: 0, transition: 'opacity 0.25s ease' }}
+      >
+        {Array.from({ length: TRAIL_COUNT }).map((_, i) => {
+          const size = 8 - i * 0.75
+          return (
+            <div
+              key={i}
+              ref={(el) => {
+                trailRefs.current[i] = el
+              }}
+              className={base}
+              style={{
+                width: size,
+                height: size,
+                borderRadius: '50%',
+                background: '#fff',
+                opacity: 0.8 - i * 0.07,
+                transform: offscreen,
+              }}
+            />
+          )
+        })}
+      </div>
+
+      {/* Liquid core */}
+      <div
+        ref={coreRef}
+        className={base}
+        style={{ opacity: 0, transform: offscreen, transition: 'opacity 0.2s ease' }}
+      >
+        <div className="h-[10px] w-[10px] rounded-full bg-white" />
+      </div>
+
+      {/* VIEW disc for project cards */}
+      <div
+        ref={discRef}
+        className={`${base} flex items-center justify-center rounded-full bg-white`}
+        style={{
+          width: 64,
+          height: 64,
+          opacity: 0,
+          transform: `${offscreen} scale(0)`,
+          transition: 'opacity 0.2s ease',
+        }}
+      >
+        <span className="pl-[0.22em] text-[9px] font-bold uppercase tracking-[0.22em] text-black" style={mono}>
+          VIEW
+        </span>
+      </div>
+    </div>
   )
 }
+
+
+
+
+
+// 'use client'
+
+// import React, { useEffect, useRef, useState } from 'react'
+
+// type CursorState = 'default' | 'link' | 'card' | 'text'
+
+// const TEXT_SELECTOR =
+//   'input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]), textarea, [contenteditable="true"]'
+// const CARD_SELECTOR =
+//   '[data-cursor="project-card"], .group\\/img, [href^="/projects/"], [href^="/details/"], .project-card, .editorial-card'
+// const LINK_SELECTOR =
+//   'a, button, [role="button"], [role="link"], [role="tab"], select, summary, label[for], .btn-editorial-primary, .btn-editorial-ghost, [data-cursor="interactive"]'
+
+// const RING_ID = 'nemo-cursor-ring-path'
+// const RING_RADIUS = 36
+// const RING_LENGTH = Math.round(2 * Math.PI * RING_RADIUS) - 2
+// const RING_CHARS = 34
+// const TRAIL_COUNT = 9
+// const GLYPHS = '01<>/{}[]#$%&*+=?;:'
+// const DEFAULT_RING_UNIT = 'NEYAMUL ISLAM • MERN DEVELOPER • '
+
+// const buildRing = (unit: string) => unit.repeat(Math.max(1, Math.round(RING_CHARS / unit.length)))
+// const DEFAULT_RING = buildRing(DEFAULT_RING_UNIT)
+
+// function getLinkLabel(el: HTMLElement): string {
+//   const custom = el.getAttribute('data-cursor-label')
+//   if (custom) return custom.toUpperCase()
+
+//   if (el instanceof HTMLAnchorElement) {
+//     if (el.hasAttribute('download')) return 'SAVE ↓'
+//     const href = el.getAttribute('href') || ''
+//     if (href.startsWith('mailto:')) return 'MAIL ↗'
+//     if (href.startsWith('#')) return 'JUMP ↓'
+//     if (/^https?:/i.test(href) && !href.startsWith(window.location.origin)) return 'OPEN ↗'
+//     return 'GO →'
+//   }
+//   return 'CLICK'
+// }
+
+// function checkTarget(target: HTMLElement | null): { state: CursorState; label: string } {
+//   if (!target) return { state: 'default', label: '' }
+
+//   if (target.closest?.(TEXT_SELECTOR)) return { state: 'text', label: '' }
+//   if (target.closest?.(CARD_SELECTOR)) return { state: 'card', label: '' }
+
+//   const link = target.closest?.(LINK_SELECTOR) as HTMLElement | null
+//   if (link) return { state: 'link', label: getLinkLabel(link) }
+
+//   try {
+//     if (window.getComputedStyle(target).cursor === 'pointer') return { state: 'link', label: 'CLICK' }
+//   } catch {
+//     // ignore
+//   }
+//   return { state: 'default', label: '' }
+// }
+
+// const ringFor = (state: CursorState, label: string) => {
+//   if (state === 'card') return buildRing('VIEW PROJECT • ')
+//   if (state === 'link') return buildRing(`${label} • `)
+//   return DEFAULT_RING
+// }
+
+// /**
+//  * COMET + ORBITING NAMEPLATE CURSOR (thin variant)
+//  * - Liquid core that stretches/squashes along its movement direction
+//  * - 9-dot chain tail that follows like a snake
+//  * - Spinning text ring (speed scales with mouse velocity) that scramble-decodes
+//  *   into a new label on hover
+//  * - Link: core becomes an inverting lens | Card: core becomes a VIEW disc
+//  * - Click: tick-mark burst
+//  */
+// export default function CustomCursor() {
+//   const rootRef = useRef<HTMLDivElement | null>(null)
+//   const ringRef = useRef<HTMLDivElement | null>(null)
+//   const spinRef = useRef<HTMLDivElement | null>(null)
+//   const ringTextRef = useRef<SVGTextPathElement | null>(null)
+//   const trailGroupRef = useRef<HTMLDivElement | null>(null)
+//   const trailRefs = useRef<(HTMLDivElement | null)[]>([])
+//   const coreRef = useRef<HTMLDivElement | null>(null)
+//   const discRef = useRef<HTMLDivElement | null>(null)
+//   const [enabled, setEnabled] = useState(false)
+
+//   useEffect(() => {
+//     const queries = [
+//       window.matchMedia('(pointer: fine)'),
+//       window.matchMedia('(hover: hover)'),
+//       window.matchMedia('(prefers-reduced-motion: reduce)'),
+//     ]
+//     const check = () => setEnabled(queries[0].matches && queries[1].matches && !queries[2].matches)
+//     check()
+//     queries.forEach((q) => q.addEventListener('change', check))
+//     return () => queries.forEach((q) => q.removeEventListener('change', check))
+//   }, [])
+
+//   useEffect(() => {
+//     if (!enabled) return
+
+//     const root = rootRef.current
+//     const ring = ringRef.current
+//     const spinEl = spinRef.current
+//     const ringText = ringTextRef.current
+//     const trailGroup = trailGroupRef.current
+//     const core = coreRef.current
+//     const disc = discRef.current
+//     const trail = trailRefs.current.filter((el): el is HTMLDivElement => el !== null)
+//     if (!root || !ring || !spinEl || !ringText || !trailGroup || !core || !disc || trail.length === 0) return
+
+//     let mouseX = window.innerWidth / 2
+//     let mouseY = window.innerHeight / 2
+//     let coreX = mouseX
+//     let coreY = mouseY
+//     let ringX = mouseX
+//     let ringY = mouseY
+//     const trailPos = trail.map(() => ({ x: mouseX, y: mouseY }))
+
+//     let coreScale = 1
+//     let ringScale = 1
+//     let discScale = 0
+//     let spinRate = 1
+
+//     let activeState: CursorState = 'default'
+//     let linkLabel = ''
+//     let ringTarget = DEFAULT_RING
+//     let scrambleTimer: number | undefined
+//     let isMouseDown = false
+//     let isVisible = false
+//     let hasMoved = false
+//     let isRunning = false
+//     let rafId = 0
+
+//     // Constant spin runs on the compositor; JS only changes its playbackRate
+//     const spin = spinEl.animate(
+//       [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
+//       { duration: 16000, iterations: Infinity }
+//     )
+
+//     const animate = () => {
+//       let tCore = 1
+//       let tRing = 1
+//       let tDisc = 0
+//       let tRate = 1
+
+//       if (activeState === 'card') {
+//         tCore = 0
+//         tRing = isMouseDown ? 1.4 : 1.6
+//         tDisc = isMouseDown ? 0.9 : 1
+//         tRate = 1.6
+//       } else if (activeState === 'link') {
+//         tCore = isMouseDown ? 3 : 5
+//         tRing = isMouseDown ? 1 : 1.2
+//         tRate = 2.4
+//       } else {
+//         tCore = isMouseDown ? 0.6 : 1
+//         tRing = isMouseDown ? 0.85 : 1
+//       }
+
+//       // Liquid core: stretch along the lag vector between pointer and core
+//       const dCoreX = mouseX - coreX
+//       const dCoreY = mouseY - coreY
+//       const lag = Math.hypot(dCoreX, dCoreY)
+//       const stretch = 1 + Math.min(lag * 0.05, 1.4)
+//       const squash = 1 / Math.sqrt(stretch)
+//       const angle = Math.atan2(dCoreY, dCoreX)
+//       coreX += dCoreX * 0.38
+//       coreY += dCoreY * 0.38
+
+//       // Chain tail
+//       let trailMoving = false
+//       let prevX = coreX
+//       let prevY = coreY
+//       for (let i = 0; i < trail.length; i++) {
+//         const p = trailPos[i]
+//         const dx = prevX - p.x
+//         const dy = prevY - p.y
+//         p.x += dx * 0.34
+//         p.y += dy * 0.34
+//         if (Math.abs(dx) > 0.08 || Math.abs(dy) > 0.08) trailMoving = true
+//         trail[i].style.transform = `translate3d(${p.x.toFixed(2)}px, ${p.y.toFixed(2)}px, 0) translate(-50%, -50%)`
+//         prevX = p.x
+//         prevY = p.y
+//       }
+
+//       // Ring floats with a softer follow
+//       const dRingX = mouseX - ringX
+//       const dRingY = mouseY - ringY
+//       ringX += dRingX * 0.12
+//       ringY += dRingY * 0.12
+
+//       const dCoreS = tCore - coreScale
+//       const dRingS = tRing - ringScale
+//       const dDiscS = tDisc - discScale
+//       const rateTarget = tRate + Math.min(lag * 0.06, 3)
+//       const dRate = rateTarget - spinRate
+
+//       coreScale += dCoreS * 0.25
+//       ringScale += dRingS * 0.18
+//       discScale += dDiscS * 0.22
+//       spinRate += dRate * 0.08
+//       spin.playbackRate = spinRate
+
+//       core.style.transform = `translate3d(${coreX.toFixed(2)}px, ${coreY.toFixed(2)}px, 0) translate(-50%, -50%) rotate(${angle.toFixed(3)}rad) scale(${(coreScale * stretch).toFixed(3)}, ${(coreScale * squash).toFixed(3)})`
+//       ring.style.transform = `translate3d(${ringX.toFixed(2)}px, ${ringY.toFixed(2)}px, 0) translate(-50%, -50%) scale(${ringScale.toFixed(3)})`
+//       disc.style.transform = `translate3d(${coreX.toFixed(2)}px, ${coreY.toFixed(2)}px, 0) translate(-50%, -50%) scale(${discScale.toFixed(3)})`
+
+//       const settled =
+//         !trailMoving &&
+//         lag < 0.08 &&
+//         Math.abs(dRingX) < 0.08 &&
+//         Math.abs(dRingY) < 0.08 &&
+//         Math.abs(dCoreS) < 0.003 &&
+//         Math.abs(dRingS) < 0.003 &&
+//         Math.abs(dDiscS) < 0.003 &&
+//         Math.abs(dRate) < 0.01
+
+//       if (settled) {
+//         isRunning = false
+//       } else {
+//         rafId = requestAnimationFrame(animate)
+//       }
+//     }
+
+//     const start = () => {
+//       if (!isRunning) {
+//         isRunning = true
+//         rafId = requestAnimationFrame(animate)
+//       }
+//     }
+
+//     // Scramble-decode the ring text into a new label
+//     const setRingText = (target: string) => {
+//       if (target === ringTarget) return
+//       ringTarget = target
+//       if (scrambleTimer) window.clearInterval(scrambleTimer)
+
+//       let frame = 0
+//       const total = 10
+//       scrambleTimer = window.setInterval(() => {
+//         frame++
+//         const reveal = Math.floor((frame / total) * target.length)
+//         let out = ''
+//         for (let i = 0; i < target.length; i++) {
+//           const ch = target[i]
+//           out += i < reveal || ch === ' ' || ch === '•' ? ch : GLYPHS[Math.floor(Math.random() * GLYPHS.length)]
+//         }
+//         ringText.textContent = out
+//         if (frame >= total) {
+//           window.clearInterval(scrambleTimer)
+//           ringText.textContent = target
+//         }
+//       }, 32)
+//     }
+
+//     const applyVisibility = () => {
+//       const live = isVisible && hasMoved
+//       const hidden = !live || activeState === 'text'
+//       const isCard = activeState === 'card'
+//       const isLink = activeState === 'link'
+
+//       core.style.opacity = hidden ? '0' : '1'
+//       ring.style.opacity = hidden ? '0' : '1'
+//       trailGroup.style.opacity = hidden || isCard ? '0' : isLink ? '0.35' : '1'
+//       disc.style.opacity = hidden || !isCard ? '0' : '1'
+//     }
+
+//     const updateState = (target: HTMLElement | null) => {
+//       const next = checkTarget(target)
+//       if (next.state !== activeState || next.label !== linkLabel) {
+//         activeState = next.state
+//         linkLabel = next.label
+//         setRingText(ringFor(activeState, linkLabel))
+//         applyVisibility()
+//         start()
+//       }
+//     }
+
+//     const burst = (x: number, y: number) => {
+//       const count = 10
+//       for (let i = 0; i < count; i++) {
+//         const p = document.createElement('span')
+//         p.style.cssText =
+//           'position:absolute;top:0;left:0;width:6px;height:1px;background:#fff;will-change:transform,opacity;'
+//         root.appendChild(p)
+
+//         const a = (i / count) * Math.PI * 2 + Math.random() * 0.4
+//         const dist = 28 + Math.random() * 28
+//         const rot = `${((a * 180) / Math.PI).toFixed(1)}deg`
+//         const at = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) rotate(${rot})`
+
+//         const anim = p.animate(
+//           [
+//             { transform: `${at} translateX(8px) scaleX(1)`, opacity: 1 },
+//             { transform: `${at} translateX(${dist.toFixed(1)}px) scaleX(0.2)`, opacity: 0 },
+//           ],
+//           { duration: 480 + Math.random() * 240, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' }
+//         )
+//         anim.onfinish = () => p.remove()
+//       }
+//     }
+
+//     const onMouseMove = (e: MouseEvent) => {
+//       mouseX = e.clientX
+//       mouseY = e.clientY
+
+//       if (!hasMoved) {
+//         hasMoved = true
+//         coreX = mouseX
+//         coreY = mouseY
+//         ringX = mouseX
+//         ringY = mouseY
+//         trailPos.forEach((p) => {
+//           p.x = mouseX
+//           p.y = mouseY
+//         })
+//         document.body.classList.add('custom-cursor-active')
+//       }
+//       isVisible = true
+
+//       applyVisibility()
+//       start()
+//     }
+
+//     const onMouseOver = (e: MouseEvent) => {
+//       updateState(e.target as HTMLElement | null)
+//     }
+
+//     const onMouseDown = () => {
+//       isMouseDown = true
+//       start()
+//     }
+
+//     const onMouseUp = () => {
+//       isMouseDown = false
+//       start()
+//     }
+
+//     const onClick = (e: MouseEvent) => {
+//       if (activeState === 'text') return
+//       burst(e.clientX, e.clientY)
+//     }
+
+//     const onLeave = () => {
+//       isVisible = false
+//       applyVisibility()
+//     }
+
+//     const onEnter = () => {
+//       isVisible = true
+//       applyVisibility()
+//       start()
+//     }
+
+//     const onScroll = () => {
+//       updateState(document.elementFromPoint(mouseX, mouseY) as HTMLElement | null)
+//       start()
+//     }
+
+//     window.addEventListener('mousemove', onMouseMove, { passive: true })
+//     document.addEventListener('mouseover', onMouseOver, { passive: true })
+//     window.addEventListener('mousedown', onMouseDown, { passive: true })
+//     window.addEventListener('mouseup', onMouseUp, { passive: true })
+//     window.addEventListener('click', onClick, { passive: true })
+//     document.documentElement.addEventListener('mouseleave', onLeave, { passive: true })
+//     document.documentElement.addEventListener('mouseenter', onEnter, { passive: true })
+//     window.addEventListener('blur', onLeave, { passive: true })
+//     window.addEventListener('focus', onEnter, { passive: true })
+//     window.addEventListener('scroll', onScroll, { passive: true })
+
+//     return () => {
+//       document.body.classList.remove('custom-cursor-active')
+//       document.body.style.cursor = ''
+//       window.removeEventListener('mousemove', onMouseMove)
+//       document.removeEventListener('mouseover', onMouseOver)
+//       window.removeEventListener('mousedown', onMouseDown)
+//       window.removeEventListener('mouseup', onMouseUp)
+//       window.removeEventListener('click', onClick)
+//       document.documentElement.removeEventListener('mouseleave', onLeave)
+//       document.documentElement.removeEventListener('mouseenter', onEnter)
+//       window.removeEventListener('blur', onLeave)
+//       window.removeEventListener('focus', onEnter)
+//       window.removeEventListener('scroll', onScroll)
+//       cancelAnimationFrame(rafId)
+//       if (scrambleTimer) window.clearInterval(scrambleTimer)
+//       spin.cancel()
+//     }
+//   }, [enabled])
+
+//   if (!enabled) return null
+
+//   const base = 'absolute top-0 left-0 will-change-transform select-none'
+//   const offscreen = 'translate3d(-100px, -100px, 0) translate(-50%, -50%)'
+//   const mono = { fontFamily: "'Space Mono', monospace" }
+
+//   return (
+//     <div
+//       ref={rootRef}
+//       aria-hidden="true"
+//       className="pointer-events-none fixed inset-0 z-[99999] mix-blend-difference"
+//     >
+//       {/* Spinning text ring */}
+//       <div
+//         ref={ringRef}
+//         className={base}
+//         style={{ opacity: 0, transform: offscreen, transition: 'opacity 0.25s ease' }}
+//       >
+//         <div ref={spinRef}>
+//           <svg width="84" height="84" viewBox="0 0 100 100" fill="none" className="block">
+//             <defs>
+//               <path
+//                 id={RING_ID}
+//                 d={`M 50,50 m -${RING_RADIUS},0 a ${RING_RADIUS},${RING_RADIUS} 0 1,1 ${RING_RADIUS * 2},0 a ${RING_RADIUS},${RING_RADIUS} 0 1,1 -${RING_RADIUS * 2},0`}
+//               />
+//             </defs>
+//             <text fill="white" fillOpacity="0.7" fontSize="7.5" fontWeight="400" style={mono}>
+//               <textPath
+//                 ref={ringTextRef}
+//                 href={`#${RING_ID}`}
+//                 startOffset="0"
+//                 textLength={RING_LENGTH}
+//                 lengthAdjust="spacing"
+//               >
+//                 {DEFAULT_RING}
+//               </textPath>
+//             </text>
+//           </svg>
+//         </div>
+//       </div>
+
+//       {/* Chain tail */}
+//       <div
+//         ref={trailGroupRef}
+//         className="absolute inset-0"
+//         style={{ opacity: 0, transition: 'opacity 0.25s ease' }}
+//       >
+//         {Array.from({ length: TRAIL_COUNT }).map((_, i) => {
+//           const size = Math.max(1.5, 5 - i * 0.45)
+//           return (
+//             <div
+//               key={i}
+//               ref={(el) => {
+//                 trailRefs.current[i] = el
+//               }}
+//               className={base}
+//               style={{
+//                 width: size,
+//                 height: size,
+//                 borderRadius: '50%',
+//                 background: '#fff',
+//                 opacity: 0.8 - i * 0.07,
+//                 transform: offscreen,
+//               }}
+//             />
+//           )
+//         })}
+//       </div>
+
+//       {/* Liquid core */}
+//       <div
+//         ref={coreRef}
+//         className={base}
+//         style={{ opacity: 0, transform: offscreen, transition: 'opacity 0.2s ease' }}
+//       >
+//         <div className="h-[6px] w-[6px] rounded-full bg-white" />
+//       </div>
+
+//       {/* VIEW disc for project cards */}
+//       <div
+//         ref={discRef}
+//         className={`${base} flex items-center justify-center rounded-full bg-white`}
+//         style={{
+//           width: 52,
+//           height: 52,
+//           opacity: 0,
+//           transform: `${offscreen} scale(0)`,
+//           transition: 'opacity 0.2s ease',
+//         }}
+//       >
+//         <span className="pl-[0.22em] text-[8px] font-medium uppercase tracking-[0.22em] text-black" style={mono}>
+//           VIEW
+//         </span>
+//       </div>
+//     </div>
+//   )
+// }
