@@ -13,6 +13,7 @@ interface ProjectCardProps {
 export default function ProjectCard({ project, index }: ProjectCardProps) {
   return (
     <motion.div
+      data-cursor="project-card"
       className="group relative rounded-2xl border border-white/10 bg-[#0c0c10] p-4 xs:p-5 sm:p-6 space-y-4 sm:space-y-5 transition-all duration-300 hover:border-white/25 min-w-0"
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
