@@ -487,7 +487,7 @@ export default function Hero() {
           className="text-[10px] xs:text-[11px] sm:text-xs tracking-widest uppercase text-[#82828e]"
           style={{ fontFamily: "'Space Mono', monospace" }}
         >
-          SCROLL TO EXPLORE ↓
+          NAVIGATE TO EXPLORE 
         </div>
       </motion.div>
 

@@ -49,7 +49,7 @@ const cardItem: Variants = {
 const educationData: EducationItem[] = [
   {
     degree: 'Bachelors of Business Administration (BBA)',
-    institution: 'Govt. Haraganga College, Munshiganj',
+    institution: 'National University Bangladesh',
     year: '2025 - 2026',
     description: 'Currently pursuing my Bachelors degree with a major in Accounting.',
     grade: 'Ongoing',
@@ -108,7 +108,7 @@ const certificatesData: CertificateItem[] = [
 const goals: GoalItemData[] = [
   { label: 'TypeScript', active: true },
   { label: 'PostgreSQL', active: true },
-  { label: 'Prisma', active: true },
+  // { label: 'Prisma', active: true },
 ]
 
 export default function Education() {
@@ -188,7 +188,7 @@ export default function Education() {
             >
               {/* Year & Index */}
               <div className="md:col-span-3 space-y-1 font-mono">
-                <span className="text-[10px] xs:text-[11px] sm:text-xs text-[#82828e]">MILESTONE 0{idx + 1}</span>
+                <span className="text-[10px] xs:text-[11px] sm:text-xs text-[#82828e]">MILESTONE 0{educationData.length - idx}</span>
                 <p className="text-xs xs:text-sm font-bold text-white tracking-wider">{item.year}</p>
                 {item.ongoing && (
                   <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[9px] xs:text-[10px] uppercase bg-white/10 text-white font-mono">
