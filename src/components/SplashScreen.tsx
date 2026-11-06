@@ -17,8 +17,8 @@ export default function SplashScreen({ onFinished, onFadeStart }: SplashScreenPr
     const fadeTimer = setTimeout(() => {
       setPhase('out')
       onFadeStart?.()
-    }, 1800)
-    const doneTimer = setTimeout(() => onFinished?.(), 2500)
+    }, 3200)
+    const doneTimer = setTimeout(() => onFinished?.(), 4500)
 
     return () => {
       document.body.style.overflow = ''
@@ -92,7 +92,7 @@ export default function SplashScreen({ onFinished, onFadeStart }: SplashScreenPr
             textTransform: 'uppercase',
           }}
         >
-          MERN Stack Developer & Software Architect
+          MERN Stack Developer
         </p>
 
         {/* Minimal Hairline Progress */}

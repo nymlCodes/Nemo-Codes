@@ -202,7 +202,7 @@ export default function Hero() {
       variants={heroSectionVariants}
       initial="hidden"
       animate={splashDone ? 'visible' : 'hidden'}
-      className="relative min-h-[92vh] flex flex-col justify-between pt-16 xs:pt-20 sm:pt-24 pb-12 xs:pb-14 sm:pb-16 px-4 xs:px-6 sm:px-10 lg:px-16 max-w-7xl mx-auto overflow-x-hidden"
+      className="relative min-h-[92vh] flex flex-col justify-between pt-16 xs:pt-20 sm:pt-24 pb-28 xs:pb-32 md:pb-16 px-4 xs:px-6 sm:px-10 lg:px-16 max-w-7xl mx-auto overflow-x-hidden"
     >
       {/* Subtle Ambient Breathing Background Element (No particles, purely tonal, GPU opacity only) */}
       <motion.div
@@ -212,14 +212,14 @@ export default function Hero() {
         animate={
           splashDone
             ? {
-                opacity: [0.04, 0.09, 0.04],
-                transition: {
-                  duration: 8,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                  delay: 0.8,
-                },
-              }
+              opacity: [0.04, 0.09, 0.04],
+              transition: {
+                duration: 8,
+                repeat: Infinity,
+                ease: 'easeInOut',
+                delay: 0.8,
+              },
+            }
             : { opacity: 0 }
         }
       />
@@ -487,7 +487,7 @@ export default function Hero() {
           className="text-[10px] xs:text-[11px] sm:text-xs tracking-widest uppercase text-[#82828e]"
           style={{ fontFamily: "'Space Mono', monospace" }}
         >
-          NAVIGATE TO EXPLORE 
+          NAVIGATE TO EXPLORE
         </div>
       </motion.div>
 
