@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description:
     'Creative portfolio of Neyamul Islam — MERN Stack Developer from Bangladesh. Building high-performance, sculptural web applications with React, Next.js, Node.js, and MongoDB.',
   icons: {
-    icon: '/favicon.png',
+    icon: '/nemo.png',
   },
   openGraph: {
     title: 'Neyamul Islam — MERN Stack Developer',
